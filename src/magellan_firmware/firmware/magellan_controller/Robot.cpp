@@ -23,7 +23,7 @@ void Robot::TeleopPeriodic() {
     double steering_angle_ = transmitter_.steering_angle();
 
     // Pass it to PWM
-    steering_pwm_.Set(steering_angle_ / 90);
+    steering_pwm_.Set(steering_angle_ / 90.0);
 }
 
 void Robot::AutonomousInit() {
