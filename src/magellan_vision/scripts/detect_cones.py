@@ -10,24 +10,23 @@ class ConeDetectNode:
         # TODO: make custom message to hold cone coordinates and possibly detection score (confidence)
         self.cone_loc_pub = rospy.Publisher('cone_loc', Point, queue_size=10)
         self.yolo = yolo.YOLO()
-        self.coneLocations = []
-        self.coneScores = []
+        self.cones = []
 
     def _process_image(self, img):
         (boxes, scores, classes) = self.yolo.detect_image(img)
         for (box, score, objClass) in zip(boxes, scores, classes):
-            self.coneLocations = []
-            self.coneScores = []
+            self.cones = []
             if objClass == 'cone':
                 # TODO: change this to be the cone location
-                self.coneLocations.append(Point(0))
-                self.coneScores.append(score)
+                newCone = ConeData(Point(0), score)
+                self.cones.append(newCone)
 
     def update(self):
         self.cone_loc_pub.publish(self.coneLocations[0])
     
 rospy.init_node('cone_loc', anonymous = False)
 rate = rospy.Rate(rospy.et_param('~rate', 10))
+ConeData = namedtuple('ConeData', ['point', 'score'])
 node = ConeDetectNode()
 while not rospy.is_shutdown():
     node.update()
