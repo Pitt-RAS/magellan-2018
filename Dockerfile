@@ -12,3 +12,5 @@ RUN bash -c "source /opt/ros/melodic/setup.bash && rosdep install --from-paths s
 RUN bash -c "source /opt/magellan-deps/devel/setup.bash && catkin_make"
 RUN echo "source /opt/magellan-deps/devel/setup.bash" >> ~/.bashrc
 RUN echo "source /robot/devel/setup.bash" >> ~/.bashrc
+
+RUN bash -c "pip install -r requirements_pip.txt"

@@ -50,6 +50,9 @@ qtcreator-*
 # Vim
 *.swp
 
+# Pipenv
+Pipfile*
+
 # Catkin custom files
 CATKIN_IGNORE
 
