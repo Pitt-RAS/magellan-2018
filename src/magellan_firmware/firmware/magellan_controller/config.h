@@ -24,5 +24,6 @@ extern RobotState currentState;
 #define ESC_PWM 3 // Throttle
 #define SERVO_PWM 4
 
-#endif
+#define STEERING_OFFSET 0.1
 
+#endif
