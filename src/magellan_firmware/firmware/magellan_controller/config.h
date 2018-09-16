@@ -13,7 +13,7 @@ extern RobotState currentState;
 // R9 transmitter
 // Timeout before we consider the transmitter disconnected
 #define TX_TIMEOUT 2000
-#define TX_SERIALPORT Serial2
+#define TX_SERIALPORT Serial1
 
 // Loop rates
 #define MAIN_LOOP_HZ 100
@@ -24,6 +24,7 @@ extern RobotState currentState;
 #define ESC_PWM 3 // Throttle
 #define SERVO_PWM 4
 
-#define STEERING_OFFSET 0.1
+// Steering trim
+#define STEERING_OFFSET -0.2
 
 #endif

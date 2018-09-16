@@ -8,6 +8,8 @@ Robot::Robot(ros::NodeHandle& nh) :
     throttle_pwm_(ESC_PWM),
     steering_pwm_(SERVO_PWM) {
         steering_pwm_.ConfigOffset(STEERING_OFFSET);
+
+        DisabledInit();
 }
 
 void Robot::TeleopInit() {
@@ -34,6 +36,8 @@ void Robot::AutonomousPeriodic() {
 }
 
 void Robot::DisabledInit() {
+    steering_pwm_.Set(0.0);
+    throttle_pwm_.Set(0.0);
 }
 
 void Robot::DisabledPeriodic() {
