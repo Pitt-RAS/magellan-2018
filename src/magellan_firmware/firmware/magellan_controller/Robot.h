@@ -29,6 +29,10 @@ private:
     HeartbeatLED heartbeat_;
     PWM throttle_pwm_;
     PWM steering_pwm_;
+    ros::Subscriber<std_msgs::Float64, Robot> throttle_subscriber_;
+    float throttle_percent_;
+    ros::Subscriber<std_msgs::Float64, Robot> steering_subscriber_;
+    float steering_angle_;
 };
 
 #endif

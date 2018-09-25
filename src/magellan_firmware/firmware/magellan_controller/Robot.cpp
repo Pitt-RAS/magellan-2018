@@ -6,7 +6,11 @@ Robot::Robot(ros::NodeHandle& nh) :
     transmitter_(nh),
     heartbeat_(),
     throttle_pwm_(ESC_PWM),
-    steering_pwm_(SERVO_PWM) {
+    steering_pwm_(SERVO_PWM),
+    throttle_subscriber_(new <std_msgs::Float64, Robot("/platform/throttle", &Robot::UpdateThrottle, this)),
+    throttle_percent_(0),
+    steering_subscriber_(new <std_msgs::Float64, Robot("/platform/steering", &Robot::UpdateSteering, this)),
+    steering_angle_(0) {
         steering_pwm_.ConfigOffset(STEERING_OFFSET);
         throttle_pwm_.ConfigLowLimit(THROTTLE_MIN);
         steering_pwm_.ConfigLowLimit(STEERING_MIN);
@@ -15,6 +19,14 @@ Robot::Robot(ros::NodeHandle& nh) :
 }
 
 void Robot::TeleopInit() {
+}
+
+void Robot::UpdateThrottle(const std_msgs::Float64& cmd_throttle_percent_) {
+    throttle_percent_ = cmd_throttle_percent_.data;
+}
+
+void Robot::UpdateSteering(const std_msgs::Float64& cmd_steering_angle_) {
+    steering_angle_ = cmd_steering_anlge_.data; 
 }
 
 void Robot::TeleopPeriodic() {
@@ -43,6 +55,8 @@ void Robot::DisabledInit() {
 }
 
 void Robot::DisabledPeriodic() {
+    throttle_percent_ = 0;
+    steering_angle_ = 0;
 }
 
 void Robot::Update() {
