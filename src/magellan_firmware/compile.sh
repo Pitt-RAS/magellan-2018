@@ -8,8 +8,13 @@ fi
 
 pushd $(dirname $0) > /dev/null
 
+set -e
+
+mkdir -p /tmp/magellan-build
+
 ${ARDUINO_PATH}/arduino-builder \
     -compile \
+    -build-path /tmp/magellan-build \
     -logger=machine \
     -hardware ${ARDUINO_PATH}/hardware \
     -tools ${ARDUINO_PATH}/tools-builder \
