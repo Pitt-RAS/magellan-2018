@@ -53,12 +53,12 @@ case $1 in
     ;;
 
     deploy-teensy)
-        docker build -f Dockerfile.teensy-deploy ${IMAGE_NAME}:teensy .
+        docker build -f Dockerfile.teensy-deploy -t ${IMAGE_NAME}:teensy .
 
         docker run \
             -it \
             --privileged \
-            --rm true \
+            --rm \
             --net host \
             -v /dev/bus/usb:/dev/bus/usb \
             ${IMAGE_NAME}:teensy
@@ -66,7 +66,11 @@ case $1 in
         docker rmi ${IMAGE_NAME}:teensy
     ;;
 
+    ssh)
+        ssh ras@${ROBOT_IP}
+    ;;
+
     *)
-        echo "Usage: robot.sh [start|stop|deploy|watch|deploy-teensy]"
+        echo "Usage: robot.sh [start|stop|deploy|watch|deploy-teensy|ssh]"
     ;;
 esac
