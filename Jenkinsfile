@@ -18,6 +18,10 @@ node {
                 '''
             }
         }
+
+        stage 'Teensy Image'
+        docker.build("magellan-2018-teensy-${BUILD_TAG.toLowerCase()}", "-f Dockerfile.teensy-deploy .")
+
         stage('Build Teensy') {
             image.inside {
                 sh '''
@@ -36,6 +40,7 @@ node {
         stage('Cleanup') {
             cleanWs()
             sh "docker rmi magellan-2018-${BUILD_TAG.toLowerCase()}"
+            sh "docker rmi magellan-2018-teensy-${BUILD_TAG.toLowerCase()}"
         }
     }
 }
