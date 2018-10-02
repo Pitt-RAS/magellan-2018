@@ -19,15 +19,11 @@ node {
             }
         }
 
-        stage 'Teensy Image'
-        docker.build("magellan-2018-teensy-${BUILD_TAG.toLowerCase()}", "-f Dockerfile.teensy-deploy .")
-
         stage('Build Teensy') {
             image.inside {
                 sh '''
                 . /opt/magellan-deps/devel/setup.sh
                 . /robot/devel/setup.sh
-                rosrun rosserial_arduino make_libraries.py /root/Arduino/libraries/
                 /robot/src/magellan_firmware/compile.sh
                 '''
             }
@@ -40,7 +36,6 @@ node {
         stage('Cleanup') {
             cleanWs()
             sh "docker rmi magellan-2018-${BUILD_TAG.toLowerCase()}"
-            sh "docker rmi magellan-2018-teensy-${BUILD_TAG.toLowerCase()}"
         }
     }
 }

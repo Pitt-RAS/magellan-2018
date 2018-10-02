@@ -10,8 +10,12 @@ pushd $(dirname $0) > /dev/null
 
 set -e
 
-mkdir -p /tmp/magellan-build
+# Rebuild ROS Arduino libraries
+rm -rf ${HOME}/Arduino/libraries/ros_lib
+mkdir -p ${HOME}/Arduino/libraries
+rosrun rosserial_arduino make_libraries.py ${HOME}/Arduino/libraries/
 
+mkdir -p /tmp/magellan-build
 ${ARDUINO_PATH}/arduino-builder \
     -compile \
     -build-path /tmp/magellan-build \

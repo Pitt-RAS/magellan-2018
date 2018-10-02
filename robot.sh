@@ -53,7 +53,7 @@ case $1 in
     ;;
 
     deploy-teensy)
-        docker build -f Dockerfile.teensy-deploy -t ${IMAGE_NAME}:teensy .
+        docker build -t ${IMAGE_NAME}:teensy .
 
         docker run \
             -it \
@@ -61,7 +61,8 @@ case $1 in
             --rm \
             --net host \
             -v /dev/bus/usb:/dev/bus/usb \
-            ${IMAGE_NAME}:teensy
+            ${IMAGE_NAME}:teensy \
+            /robot/src/magellan_firmware/download.sh
 
         docker rmi ${IMAGE_NAME}:teensy
     ;;
