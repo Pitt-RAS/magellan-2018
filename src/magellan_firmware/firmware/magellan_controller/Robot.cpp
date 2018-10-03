@@ -11,6 +11,8 @@ Robot::Robot(ros::NodeHandle& nh) :
     throttle_percent_(0.0),
     steering_subscriber_("/platform/steering", &Robot::UpdateSteering, this),
     steering_angle_(0.0) {
+        nh.subscribe(throttle_subscriber_);
+        nh.subscribe(steering_subscriber_);
         steering_pwm_.ConfigOffset(STEERING_OFFSET);
         throttle_pwm_.ConfigLowLimit(THROTTLE_MIN);
         steering_pwm_.ConfigLowLimit(STEERING_MIN);
@@ -57,7 +59,7 @@ void Robot::UpdateThrottle(const std_msgs::Float64& cmd_throttle_percent_) {
 }
 
 void Robot::UpdateSteering(const std_msgs::Float64& cmd_steering_angle_) {
-    steering_angle_ = cmd_steering_angle_.data; 
+    steering_angle_ = cmd_steering_angle_.data;
 }
 
 void Robot::Update() {
