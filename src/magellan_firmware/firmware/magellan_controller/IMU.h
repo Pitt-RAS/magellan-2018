@@ -14,9 +14,9 @@
 #include <geometry_msgs/Quaternion.h>
 #include <magellan_core/IMUState.h>
 
-class MagellanIMU{
+class IMU{
 public:
-    MagellanIMU(ros::NodeHandle &imu_handle);
+    IMU(ros::NodeHandle &imu_handle);
     double getHeading();
     void update();
 private:

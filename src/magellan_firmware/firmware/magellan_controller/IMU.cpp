@@ -1,6 +1,6 @@
 #include "IMU.h"
 
-MagellanIMU::MagellanIMU(ros::NodeHandle &imu_handle) : 
+IMU::IMU(ros::NodeHandle &imu_handle) : 
     node_handle_(imu_handle),
     imu_publisher_("imu", &imu_msg_),
     imu_state_publisher_("imu_state", &imu_state_msg_),
@@ -26,11 +26,11 @@ MagellanIMU::MagellanIMU(ros::NodeHandle &imu_handle) :
 }
 
 // Returns IMU heading
-double MagellanIMU::getHeading() {
+double IMU::getHeading() {
     return imu_.getVector(Adafruit_BNO055::VECTOR_EULER).z();
-
+}
 // Publishes quaternion data and physical status of IMU
-void MagellanIMU::update() {
+void IMU::update() {
     uint8_t system = 0, gyro = 0, accel = 0, mag = 0;
     imu_.getCalibration(&system, &gyro, &accel, &mag);
     // Set IMU State messages
@@ -38,15 +38,15 @@ void MagellanIMU::update() {
     imu_state_msg_.gyro = gyro;
     imu_state_msg_.accel = accel;
     imu_state_msg_.mag = mag;
-    imu_state_publisher.publish(&imu_state_msg_);
+    imu_state_publisher_.publish(&imu_state_msg_);
     // Checks if IMU is calibrate; if calibrated, publishes IMU data
     if(system > 0 && gyro > 0) {
         // Retrieve data from IMU
-        imu::Quaternion quaternion = imu.getQuat();
-        imu::Vector<3> linear_accel = imu.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-        imu::Vector<3> angular_velocity = imu.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+        imu::Quaternion quaternion = imu_.getQuat();
+        imu::Vector<3> linear_accel = imu_.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+        imu::Vector<3> angular_velocity = imu_.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
         // Setting message data
-        imu_msg_.header.stamp = node_handle.now();
+        imu_msg_.header.stamp = node_handle_.now();
         imu_msg_.orientation.x = quaternion.x();
         imu_msg_.orientation.y = quaternion.y();
         imu_msg_.orientation.z = quaternion.z();
