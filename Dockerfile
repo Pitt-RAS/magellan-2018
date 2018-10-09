@@ -1,4 +1,4 @@
-FROM pittras/magellan-2018-base:master-12
+FROM pittras/magellan-2018-base:master-23
 
 # Add known ROS dependencies to the pittras/magellan-2018-docker-base repo
 # This avoids rosdep redownloading them
@@ -7,10 +7,9 @@ FROM pittras/magellan-2018-base:master-12
 COPY . /robot
 WORKDIR /robot
 
-RUN bash -c "source /opt/ros/melodic/setup.bash && rosdep install --from-paths src --ignore-src -y"
-
-RUN bash -c "source /opt/magellan-deps/devel/setup.bash && catkin_make"
-RUN echo "source /opt/magellan-deps/devel/setup.bash" >> ~/.bashrc
-RUN echo "source /robot/devel/setup.bash" >> ~/.bashrc
-
 RUN bash -c "pip install -r requirements_pip.txt"
+RUN bash -c "source /opt/magellan-deps/devel/setup.bash && \
+             rosdep install --from-paths src --ignore-src -y && \
+             catkin_make && \
+             echo \"source /opt/magellan-deps/devel/setup.bash\" >> ~/.bashrc && \
+             echo \"source /robot/devel/setup.bash\" >> ~/.bashrc"

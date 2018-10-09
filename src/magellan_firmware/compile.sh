@@ -6,10 +6,19 @@ then
     exit 1
 fi
 
-pushd $(dirname $0)
+pushd $(dirname $0) > /dev/null
 
+set -e
+
+# Rebuild ROS Arduino libraries
+rm -rf ${HOME}/Arduino/libraries/ros_lib
+mkdir -p ${HOME}/Arduino/libraries
+rosrun rosserial_arduino make_libraries.py ${HOME}/Arduino/libraries/
+
+mkdir -p /tmp/magellan-build
 ${ARDUINO_PATH}/arduino-builder \
     -compile \
+    -build-path /tmp/magellan-build \
     -logger=machine \
     -hardware ${ARDUINO_PATH}/hardware \
     -tools ${ARDUINO_PATH}/tools-builder \
@@ -20,4 +29,4 @@ ${ARDUINO_PATH}/arduino-builder \
     -verbose \
     firmware/magellan_controller/magellan_controller.ino
 
-popd
+popd > /dev/null

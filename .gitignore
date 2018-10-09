@@ -58,3 +58,4 @@ CATKIN_IGNORE
 
 .catkin_workspace
 /src/CMakeLists.txt
+ssh.pid
