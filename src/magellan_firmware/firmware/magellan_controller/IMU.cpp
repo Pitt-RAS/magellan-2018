@@ -60,3 +60,4 @@ void IMU::update() {
         imu_publisher_.publish(&imu_msg_);
     }
 }
+
