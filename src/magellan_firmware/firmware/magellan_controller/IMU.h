@@ -1,10 +1,3 @@
-/**
- * Teensy IMU for PittRAS Magellan
- * Adapted from PittRAS Sailbot 
- * Original Authors: Andrew Lobos and Kaylene Stocking
- * Modified by: Xinke Chen
- * 2018-10-03
- */
 #ifndef IMU_H_
 #define IMU_H_
 
@@ -14,13 +7,13 @@
 #include <geometry_msgs/Quaternion.h>
 #include <magellan_core/IMUState.h>
 
-class IMU{
+class IMU {
 public:
-    IMU(ros::NodeHandle &imu_handle);
-    double getHeading();
-    void update();
+    IMU(ros::NodeHandle& imu_handle);
+    double GetHeading();
+    void Update();
 private:
-    ros::NodeHandle node_handle_;
+    ros::NodeHandle& node_handle_;
     ros::Publisher imu_publisher_;
     ros::Publisher imu_state_publisher_;
     Adafruit_BNO055 imu_;
@@ -42,4 +35,3 @@ private:
 };
 
 #endif
-

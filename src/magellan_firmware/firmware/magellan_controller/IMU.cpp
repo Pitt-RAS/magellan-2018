@@ -1,10 +1,10 @@
 #include "IMU.h"
 
-IMU::IMU(ros::NodeHandle &imu_handle) : 
+IMU::IMU(ros::NodeHandle& imu_handle) :
     node_handle_(imu_handle),
-    imu_publisher_("imu", &imu_msg_),
-    imu_state_publisher_("imu_state", &imu_state_msg_),
-    imu_(55) {
+    imu_publisher_("/platform/imu", &imu_msg_),
+    imu_state_publisher_("/platform/imu_state", &imu_state_msg_),
+    imu_() {
     imu_.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS);
     // Setting IMU calibration data
     sensor_offsets_.accel_offset_x = ACCEL_X;
@@ -20,17 +20,18 @@ IMU::IMU(ros::NodeHandle &imu_handle) :
     sensor_offsets_.mag_radius = MAG_RADIUS;
     imu_.setSensorOffsets(sensor_offsets_);
     // ROS configuration
-    imu_msg_.header.frame_id = "Magellan_IMU";
+    imu_msg_.header.frame_id = "imu";
     node_handle_.advertise(imu_publisher_);
     node_handle_.advertise(imu_state_publisher_);
 }
 
 // Returns IMU heading
-double IMU::getHeading() {
+double IMU::GetHeading() {
     return imu_.getVector(Adafruit_BNO055::VECTOR_EULER).z();
 }
+
 // Publishes quaternion data and physical status of IMU
-void IMU::update() {
+void IMU::Update() {
     uint8_t system = 0, gyro = 0, accel = 0, mag = 0;
     imu_.getCalibration(&system, &gyro, &accel, &mag);
     // Set IMU State messages
@@ -40,7 +41,7 @@ void IMU::update() {
     imu_state_msg_.mag = mag;
     imu_state_publisher_.publish(&imu_state_msg_);
     // Checks if IMU is calibrate; if calibrated, publishes IMU data
-    if(system > 0 && gyro > 0) {
+    if ( gyro > 0 ) {
         // Retrieve data from IMU
         imu::Quaternion quaternion = imu_.getQuat();
         imu::Vector<3> linear_accel = imu_.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
@@ -60,4 +61,3 @@ void IMU::update() {
         imu_publisher_.publish(&imu_msg_);
     }
 }
-
