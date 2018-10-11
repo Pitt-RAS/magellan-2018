@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env python
 
 import rospy
 from geometry_msgs.msg import Point, PolygonStamped
@@ -25,24 +25,27 @@ class FakeObstacles(object):
             _obst.obst.length = values['length']
             _obst.header.stamp = rospy.Time.now()
 
-            self._msg.obstacles.push(_obst)
+            self._msg.obstacles.append(_obst)
 
-    def publish_obstacles(self):
+    def _publish_obstacles(self):
         self._obst_pub.publish(self._msg)
 
-    def publish_markers(self):
+    def _publish_markers(self):
         pass
 
     def update(self):
-        self.publish_obstalces()
-        self.publish_markers()
+        self._publish_obstacles()
+        self._publish_markers()
 
 if __name__ == '__main__':
     rospy.init_node('fake_sensors')
+
+    # 20 hz update rate
+    _rate = rospy.Rate(20)
 
     obsts = FakeObstacles(rospy.get_param('~fake_obstacles'))
 
     while not rospy.is_shutdown():
         obsts.update()
-        rospy.sleep(.05)
+        _rate.sleep()
 

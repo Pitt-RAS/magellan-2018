@@ -6,11 +6,11 @@ fake_obstacles:
         x: 5.0
         y: 5.0
         width: 4.5
-        height: 8.2
+        length: 8.2
     obstacle_2: 
         id: 'obst_2'
         x: 7.5
         y: 2.0
         width: 3.0
-        height: 1.0
+        length: 1.0
 
