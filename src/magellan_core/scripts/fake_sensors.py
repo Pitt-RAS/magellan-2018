@@ -1,0 +1,48 @@
+#!/usr/bin/env
+
+import rospy
+from geometry_msgs.msg import Point, PolygonStamped
+from magellan_core.msg import (ObstacleStamped, ObstacleStampedArray)
+from visualization_msgs.msg import Marker
+
+class FakeObstacles(object):
+    def __init__(self, obstacles):
+        self._marker_pub = rospy.Publisher('/obstacle_markers',
+                              Marker,
+                              queue_size=5)
+
+        self._obst_pub = rospy.Publisher('/obstacles',
+                              ObstacleStampedArray,
+                              queue_size=5)
+
+        self._msg = ObstacleStampedArray()
+
+        for name, values in obstacles.iteritems():
+            _obst = ObstacleStamped()
+            _obst.obst.x = values['x']
+            _obst.obst.y = values['y']
+            _obst.obst.width = values['width']
+            _obst.obst.length = values['length']
+            _obst.header.stamp = rospy.Time.now()
+
+            self._msg.obstacles.push(_obst)
+
+    def publish_obstacles(self):
+        self._obst_pub.publish(self._msg)
+
+    def publish_markers(self):
+        pass
+
+    def update(self):
+        self.publish_obstalces()
+        self.publish_markers()
+
+if __name__ == '__main__':
+    rospy.init_node('fake_sensors')
+
+    obsts = FakeObstacles(rospy.get_param('~fake_obstacles'))
+
+    while not rospy.is_shutdown():
+        obsts.update()
+        rospy.sleep(.05)
+
