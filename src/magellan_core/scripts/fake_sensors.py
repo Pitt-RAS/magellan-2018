@@ -3,35 +3,90 @@
 import rospy
 from geometry_msgs.msg import Point, PolygonStamped
 from magellan_core.msg import (ObstacleStamped, ObstacleStampedArray)
-from visualization_msgs.msg import Marker
+from visualization_msgs.msg import Marker, MarkerArray
 
 class FakeObstacles(object):
     def __init__(self, obstacles):
         self._marker_pub = rospy.Publisher('/obstacle_markers',
-                              Marker,
+                              MarkerArray,
                               queue_size=5)
 
         self._obst_pub = rospy.Publisher('/obstacles',
                               ObstacleStampedArray,
                               queue_size=5)
 
-        self._msg = ObstacleStampedArray()
+        self._obstacle_msg = ObstacleStampedArray()
+        self._marker_message = MarkerArray()
+
+        marker_id = 1
 
         for name, values in obstacles.iteritems():
+            # generate obstacle message
             _obst = ObstacleStamped()
             _obst.obst.x = values['x']
             _obst.obst.y = values['y']
             _obst.obst.width = values['width']
             _obst.obst.length = values['length']
             _obst.header.stamp = rospy.Time.now()
+            _obst.header.frame_id = 'map'
 
-            self._msg.obstacles.append(_obst)
+            self._obstacle_msg.obstacles.append(_obst)
+
+            # generate marker message
+            marker = Marker()
+            marker.header.stamp = rospy.Time.now()
+            marker.header.frame_id = 'map'
+            marker.id = marker_id
+            marker.ns = 'obstacles'
+
+            marker.type = Marker.POINTS
+            marker.action = Marker.ADD
+            marker.pose.orientation.w = 1.0
+
+            marker.scale.x = 0.1
+            marker.scale.y = 0.1
+            marker.scale.z = 0.1
+
+            marker.color.r = 1.0
+            marker.color.g = 0.0
+            marker.color.b = 0.0
+            marker.color.a = 1.0
+
+            marker.lifetime = rospy.Duration(0.1)
+
+            # generate 4 corners of obstacles
+            center = Point()
+            center.x = _obst.obst.x
+            center.y = _obst.obst.y
+            marker.points.append(center)
+
+            corner_1 = Point()
+            corner_1.x = center.x + _obst.obst.width
+            corner_1.y = center.y + _obst.obst.length
+            marker.points.append(corner_1)
+
+            corner_2 = Point()
+            corner_2.x = center.x - _obst.obst.width
+            corner_2.y = center.y + _obst.obst.length
+            marker.points.append(corner_2)
+
+            corner_3 = Point()
+            corner_3.x = center.x + _obst.obst.width
+            corner_3.y = center.y - _obst.obst.length
+            marker.points.append(corner_3)
+
+            corner_4 = Point()
+            corner_4.x = center.x - _obst.obst.width
+            corner_4.y = center.y - _obst.obst.length
+            marker.points.append(corner_4)
+
+            self._marker_message.markers.append(marker)
 
     def _publish_obstacles(self):
-        self._obst_pub.publish(self._msg)
+        self._obst_pub.publish(self._obstacle_msg)
 
     def _publish_markers(self):
-        pass
+        self._marker_pub.publish(self._marker_message)
 
     def update(self):
         self._publish_obstacles()
