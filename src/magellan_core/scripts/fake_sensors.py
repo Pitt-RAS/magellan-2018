@@ -39,12 +39,12 @@ class FakeObstacles(object):
             marker.id = marker_id
             marker.ns = 'obstacles'
 
-            marker.type = Marker.POINTS
+            marker.type = Marker.CUBE_LIST
             marker.action = Marker.ADD
             marker.pose.orientation.w = 1.0
 
-            marker.scale.x = 0.1
-            marker.scale.y = 0.1
+            marker.scale.x = _obst.obst.width
+            marker.scale.y = _obst.obst.length
             marker.scale.z = 0.1
 
             marker.color.r = 1.0
@@ -54,33 +54,14 @@ class FakeObstacles(object):
 
             marker.lifetime = rospy.Duration(0.1)
 
-            # generate 4 corners of obstacles
             center = Point()
             center.x = _obst.obst.x
             center.y = _obst.obst.y
             marker.points.append(center)
 
-            corner_1 = Point()
-            corner_1.x = center.x + _obst.obst.width
-            corner_1.y = center.y + _obst.obst.length
-            marker.points.append(corner_1)
-
-            corner_2 = Point()
-            corner_2.x = center.x - _obst.obst.width
-            corner_2.y = center.y + _obst.obst.length
-            marker.points.append(corner_2)
-
-            corner_3 = Point()
-            corner_3.x = center.x + _obst.obst.width
-            corner_3.y = center.y - _obst.obst.length
-            marker.points.append(corner_3)
-
-            corner_4 = Point()
-            corner_4.x = center.x - _obst.obst.width
-            corner_4.y = center.y - _obst.obst.length
-            marker.points.append(corner_4)
-
             self._marker_message.markers.append(marker)
+
+            marker_id = marker_id+1
 
     def _publish_obstacles(self):
         self._obst_pub.publish(self._obstacle_msg)
