@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import rospy
 from geometry_msgs.msg import Point, PolygonStamped
 from magellan_core.msg import (ObstacleStamped, ObstacleStampedArray)
@@ -84,4 +83,3 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         obsts.update()
         _rate.sleep()
-
