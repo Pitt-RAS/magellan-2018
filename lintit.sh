@@ -2,7 +2,7 @@
 
 pushd $(dirname $BASH_SOURCE) > /dev/null
 
-find src -iname "*.h" -iname "*.cpp" | xargs uncrustify --check -c uncrustify.cfg
+find src -iname "*.h" -o -iname "*.cpp" | xargs uncrustify --check -c uncrustify.cfg
 
 if test $? -ne 0
 then
