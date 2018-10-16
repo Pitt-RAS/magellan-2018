@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from geometry_msgs.msg import Point, PolygonStamped
+from geometry_msgs.msg import Point
 from magellan_core.msg import (ObstacleStamped, ObstacleStampedArray)
 from visualization_msgs.msg import Marker, MarkerArray
 
