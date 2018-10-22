@@ -33,11 +33,11 @@ void Drivetrain::SetSteeringAngle(double angle) {
 }
 
 double Drivetrain::GetSteeringAngleForPercent(double percent) {
-    return percent * M_PI / 6.0;
+    return percent * kMaxTurningAngle;
 }
 
 double Drivetrain::GetPercentForSteeringAngle(double angle) {
-    return angle / 30.0;
+    return angle / kMaxTurningAngle;
 }
 
 // Returns radius of imaginary circle the car is driving along while turning
@@ -46,7 +46,7 @@ double Drivetrain::GetTurningRadius(double percent) {
         return 0;
 
     double angle = GetSteeringAngleForPercent(percent);
-    return TRACKLENGTH * (1.0 / tan(angle)) + (TRACKWIDTH / 2.0);
+    return kTrackLength * (1.0 / tan(angle)) + (kTrackWidth / 2.0);
 }
 
 bool Drivetrain::DirectionIsForward() {
