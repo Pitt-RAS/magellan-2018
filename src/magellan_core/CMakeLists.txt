@@ -55,7 +55,10 @@ find_package(catkin REQUIRED
    WaypointStamped.msg
    WaypointStampedArray.msg
    IMUState.msg
-)
+   Obstacle.msg
+   ObstacleStamped.msg
+   ObstacleStampedArray.msg
+   )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
