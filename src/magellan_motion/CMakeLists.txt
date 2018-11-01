@@ -7,7 +7,7 @@ project(magellan_motion)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED roscpp tf2)
+find_package(catkin REQUIRED roscpp tf2_ros)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -145,6 +145,8 @@ add_executable(path_follower_node src/path_follower/path_follower_node.cpp src/p
 target_link_libraries(path_follower_node
   ${catkin_LIBRARIES}
 )
+
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++17)
 
 #############
 ## Install ##
