@@ -7,7 +7,7 @@ project(magellan_motion)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED roscpp tf2_ros)
+find_package(catkin REQUIRED roscpp tf2_ros visualization_msgs)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -129,7 +129,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(path_follower_node src/path_follower/path_follower_node.cpp src/path_follower/path_follower.cpp)
+add_executable(path_follower_node src/path_follower/path_follower_node.cpp src/path_follower/path_follower.cpp src/path_follower/path_markers.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

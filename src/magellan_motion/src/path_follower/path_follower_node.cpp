@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     }
 
     double discretization;
-    if ( !private_nh.getParam("discretization", lookahead_distance) ) {
+    if ( !private_nh.getParam("discretization", discretization) ) {
         ROS_ERROR("discretization param unset");
         ros::shutdown();
         return 0;
@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
 
     while (ros::ok()) {
         path_follower.Update();
+        ros::spinOnce();
         rate.sleep();
     }
 }

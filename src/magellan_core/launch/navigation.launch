@@ -1,0 +1,6 @@
+<launch>
+    <node pkg="magellan_motion" type="path_follower_node" name="path_follower">
+        <param name="~lookahead_distance" type="double" value="0.5" />
+        <param name="~discretization" type="double" value="0.01" />
+    </node>
+</launch>
