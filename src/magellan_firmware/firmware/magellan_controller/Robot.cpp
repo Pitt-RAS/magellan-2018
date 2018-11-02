@@ -38,7 +38,7 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-    drivetrain_.SetThrottlePercent(throttle_percent_);
+    drivetrain_.SetThrottlePercent(transmitter_.throttle_percent());
     drivetrain_.SetSteeringAngle(steering_angle_);
 }
 
@@ -61,6 +61,7 @@ void Robot::UpdateThrottle(const std_msgs::Float64& cmd_velocity) {
 
 void Robot::UpdateSteering(const std_msgs::Float64& cmd_turning_radius) {
     steering_angle_ = drivetrain_.GetSteeringAngle(cmd_turning_radius.data);
+    nh_.logwarn("update steering");
 }
 
 void Robot::Update() {
