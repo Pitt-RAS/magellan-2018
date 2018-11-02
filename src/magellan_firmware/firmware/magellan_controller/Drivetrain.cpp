@@ -37,6 +37,8 @@ double Drivetrain::GetSteeringAngleForPercent(double percent) {
 }
 
 double Drivetrain::GetPercentForSteeringAngle(double angle) {
+    if ( angle > kMaxTurningAngle )
+        return 1;
     return angle / kMaxTurningAngle;
 }
 
@@ -47,6 +49,10 @@ double Drivetrain::GetTurningRadius(double percent) {
 
     double angle = GetSteeringAngleForPercent(percent);
     return kTrackLength * (1.0 / tan(angle)) + (kTrackWidth / 2.0);
+}
+
+double Drivetrain::GetSteeringAngle(double radius) {
+    return atan(kTrackLength / (radius + (kTrackWidth / 2)));
 }
 
 bool Drivetrain::DirectionIsForward() {
