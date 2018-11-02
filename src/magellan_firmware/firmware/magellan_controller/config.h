@@ -39,6 +39,8 @@ extern RobotState currentState;
 const constexpr double kTrackLength = 0.3175;
 // Distance from left wheel to right wheel
 const constexpr double kTrackWidth = 0.254;
+// Max velocity
+const constexpr double kMaxVelocity = 3.0;
 
 // Max turning angle of the inside wheel in a turn
 const constexpr double kMaxTurningAngle = M_PI / 6.0;
