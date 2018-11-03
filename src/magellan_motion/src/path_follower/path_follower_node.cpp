@@ -25,7 +25,21 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    PathFollower path_follower(nh, discretization, lookahead_distance);
+    double max_velocity;
+    if ( !private_nh.getParam("max_vel", max_velocity) ) {
+        ROS_ERROR("Maximum velocity param unset");
+        ros::shutdown();
+        return 0;
+    }
+
+    double max_acceleration;
+    if ( !private_nh.getParam("max_acc", max_acceleration) ) {
+        ROS_ERROR("Maximum acceleration param unset");
+        ros::shutdown();
+        return 0;
+    }
+
+    PathFollower path_follower(nh, discretization, lookahead_distance, max_velocity, max_acceleration);
 
     while (ros::ok()) {
         path_follower.Update();

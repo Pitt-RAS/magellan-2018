@@ -8,10 +8,11 @@
 #include <tf2/utils.h>
 
 #include "path_markers.h"
+#include "velocity_limiter.h"
 
 class PathFollower {
     public:
-        PathFollower(ros::NodeHandle& nh, double discretization, double lookahead_distance);
+        PathFollower(ros::NodeHandle& nh, double discretization, double lookahead_distance, double max_vel, double max_acc);
         void Update();
     private:
         ros::NodeHandle& nh_;
@@ -23,12 +24,14 @@ class PathFollower {
         ros::Publisher turning_radius_publisher_;
 
         PathMarkers markers_;
+        VelocityLimiter velocity_limiter_;
 
         nav_msgs::Path::ConstPtr current_path_;
         int path_start_index_;
 
         double discretization_;
         double lookahead_distance_;
+        double max_acc_;
 
         void UpdatePath(nav_msgs::Path::ConstPtr path);
 };
