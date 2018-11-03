@@ -7,7 +7,7 @@ static inline double L1Norm(const geometry_msgs::PoseStamped& pose) {
     return std::abs(pose.pose.position.x) + std::abs(pose.pose.position.y);
 }
 
-PathFollower::PathFollower(ros::NodeHandle& nh, double discretization, double lookahead_distance) :
+PathFollower::PathFollower(ros::NodeHandle& nh, double discretization, double lookahead_distance, double max_vel, double max_acc) :
     nh_(nh),
     tf_buffer_(),
     tf_listener_(tf_buffer_),
@@ -15,14 +15,15 @@ PathFollower::PathFollower(ros::NodeHandle& nh, double discretization, double lo
     velocity_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_velocity", 10)),
     turning_radius_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_turning_radius", 10)),
     markers_(nh, 10),
+    velocity_limiter_(max_vel, max_acc),
     current_path_(),
     path_start_index_(0),
     discretization_(discretization),
+    max_acc_(max_acc),
     lookahead_distance_(lookahead_distance) {
 }
 
 void PathFollower::UpdatePath(nav_msgs::Path::ConstPtr path) {
-    ROS_WARN("updated path");
     current_path_ = path;
     path_start_index_ = 0;
 }
@@ -36,9 +37,7 @@ void PathFollower::Update() {
         return;
     }
 
-    std::string frame = (*current_path_).header.frame_id;
-    ROS_INFO("Transforming from %s", frame.c_str());
-    auto transform = tf_buffer_.lookupTransform("base_link", frame, ros::Time::now(), ros::Duration(1.0));
+    auto transform = tf_buffer_.lookupTransform("base_link", (*current_path_).header.frame_id, ros::Time::now(), ros::Duration(1.0));
 
     int lookahead_points = lookahead_distance_ / discretization_;
 
@@ -53,12 +52,12 @@ void PathFollower::Update() {
             break;
         closest_point = temp;
     }
-    path_start_index_ = std::distance((*current_path_).poses.begin(), it);
+    path_start_index_ = std::distance((*current_path_).poses.begin(), it) - 1;
 
-    ROS_WARN("distance is %d %d", std::distance(it, (*current_path_).poses.end()), lookahead_points);
-    int jump = std::min(static_cast<int>(std::distance(it, (*current_path_).poses.end())), lookahead_points);
-    it += std::min(static_cast<int>(std::distance(it, (*current_path_).poses.end())), lookahead_points);
-    ROS_WARN("jumping %d", jump);
+    int points_to_end = std::distance(it, (*current_path_).poses.end()) - 1;
+    double estimated_remaining_distance = points_to_end * discretization_;
+
+    it += std::min(points_to_end, lookahead_points);
 
     geometry_msgs::PoseStamped lookahead_pose;
     tf2::doTransform(*it, lookahead_pose, transform);
@@ -67,14 +66,15 @@ void PathFollower::Update() {
     if ( lookahead_pose.pose.position.x > 0 )
         turning_radius = (lookahead_distance_*lookahead_distance_) / (2.0 * lookahead_pose.pose.position.y);
 
-    ROS_INFO("Error to lookahead is %2.2f", lookahead_pose.pose.position.y);
+    static std_msgs::Float64 velocity_command;
+    velocity_command.data = velocity_limiter_.Update(estimated_remaining_distance);
+    velocity_publisher_.publish(velocity_command);
+
     static std_msgs::Float64 turning_command;
     turning_command.data = turning_radius;
-
     turning_radius_publisher_.publish(turning_command);
 
     markers_.UpdateClosestPoint(closest_point);
     markers_.UpdateLookahead(lookahead_pose);
-
     markers_.Update();
 }
