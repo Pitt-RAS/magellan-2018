@@ -3,8 +3,8 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <optional>
 
-static inline double L1Norm(const geometry_msgs::PoseStamped& pose) {
-    return std::abs(pose.pose.position.x) + std::abs(pose.pose.position.y);
+static inline double L2Norm(const geometry_msgs::PoseStamped& pose) {
+    return std::sqrt(pose.pose.position.x*pose.pose.position.x + pose.pose.position.y*pose.pose.position.y);
 }
 
 PathFollower::PathFollower(ros::NodeHandle& nh, double discretization, double lookahead_distance, double max_vel, double max_acc) :
@@ -41,14 +41,13 @@ void PathFollower::Update() {
 
     int lookahead_points = lookahead_distance_ / discretization_;
 
-    geometry_msgs::PoseStamped closest_pose;
     auto it = (*current_path_).poses.begin();
     geometry_msgs::PoseStamped closest_point;
     tf2::doTransform(*it, closest_point, transform);
     geometry_msgs::PoseStamped temp;
     for ( it += 0; it != (*current_path_).poses.end(); ++it) {
         tf2::doTransform(*it, temp, transform);
-        if ( L1Norm(temp) > L1Norm(closest_point) )
+        if ( L2Norm(temp) > L2Norm(closest_point) )
             break;
         closest_point = temp;
     }
