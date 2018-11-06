@@ -4,23 +4,27 @@
 #include <optional>
 
 static inline double L2Norm(const geometry_msgs::PoseStamped& pose) {
-    return std::sqrt(pose.pose.position.x*pose.pose.position.x + pose.pose.position.y*pose.pose.position.y);
+    return std::sqrt(pose.pose.position.x * pose.pose.position.x + pose.pose.position.y * pose.pose.position.y);
 }
 
-PathFollower::PathFollower(ros::NodeHandle& nh, double discretization, double lookahead_distance, double max_vel, double max_acc) :
-    nh_(nh),
-    tf_buffer_(),
-    tf_listener_(tf_buffer_),
-    path_subscriber_(nh.subscribe("/path", 10, &PathFollower::UpdatePath, this)),
-    velocity_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_velocity", 10)),
-    turning_radius_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_turning_radius", 10)),
-    markers_(nh, 10),
-    velocity_limiter_(max_vel, max_acc),
-    current_path_(),
-    path_start_index_(0),
-    discretization_(discretization),
-    max_acc_(max_acc),
-    lookahead_distance_(lookahead_distance) {
+PathFollower::PathFollower(ros::NodeHandle& nh,
+                           double discretization,
+                           double lookahead_distance,
+                           double max_vel,
+                           double max_acc) :
+        nh_(nh),
+        tf_buffer_(),
+        tf_listener_(tf_buffer_),
+        path_subscriber_(nh.subscribe("/path", 10, &PathFollower::UpdatePath, this)),
+        velocity_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_velocity", 10)),
+        turning_radius_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_turning_radius", 10)),
+        markers_(nh, 10),
+        velocity_limiter_(max_vel, max_acc),
+        current_path_(),
+        path_start_index_(0),
+        discretization_(discretization),
+        max_acc_(max_acc),
+        lookahead_distance_(lookahead_distance) {
 }
 
 void PathFollower::UpdatePath(nav_msgs::Path::ConstPtr path) {
@@ -37,7 +41,10 @@ void PathFollower::Update() {
         return;
     }
 
-    auto transform = tf_buffer_.lookupTransform("base_link", (*current_path_).header.frame_id, ros::Time::now(), ros::Duration(1.0));
+    auto transform = tf_buffer_.lookupTransform("base_link",
+                                                (*current_path_).header.frame_id,
+                                                ros::Time::now(),
+                                                ros::Duration(1.0));
 
     int lookahead_points = lookahead_distance_ / discretization_;
 
@@ -63,7 +70,7 @@ void PathFollower::Update() {
 
     double turning_radius = 0;
     if ( lookahead_pose.pose.position.x > 0 )
-        turning_radius = (lookahead_distance_*lookahead_distance_) / (2.0 * lookahead_pose.pose.position.y);
+        turning_radius = (lookahead_distance_ * lookahead_distance_) / (2.0 * lookahead_pose.pose.position.y);
 
     static std_msgs::Float64 velocity_command;
     velocity_command.data = velocity_limiter_.Update(estimated_remaining_distance);

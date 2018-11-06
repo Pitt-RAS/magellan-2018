@@ -1,10 +1,10 @@
 #include "velocity_limiter.h"
 
 VelocityLimiter::VelocityLimiter(double max_vel, double max_acc) :
-    max_vel_(max_vel),
-    max_acc_(max_acc),
-    velocity_(0),
-    last_update_(ros::Time::now()) {
+        max_vel_(max_vel),
+        max_acc_(max_acc),
+        velocity_(0),
+        last_update_(ros::Time::now()) {
 }
 
 double VelocityLimiter::Update(double remaining_path_length) {
