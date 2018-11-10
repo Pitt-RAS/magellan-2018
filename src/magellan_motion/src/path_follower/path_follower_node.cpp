@@ -42,7 +42,12 @@ int main(int argc, char** argv) {
     PathFollower path_follower(nh, discretization, lookahead_distance, max_velocity, max_acceleration);
 
     while (ros::ok()) {
-        path_follower.Update();
+        try {
+            path_follower.Update();
+        }
+        catch (tf2::TransformException e) {
+            ROS_ERROR("Failed to lookup transform");
+        }
         ros::spinOnce();
         rate.sleep();
     }

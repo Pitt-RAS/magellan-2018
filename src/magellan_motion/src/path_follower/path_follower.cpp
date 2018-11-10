@@ -41,6 +41,7 @@ void PathFollower::Update() {
         return;
     }
 
+ 
     auto transform = tf_buffer_.lookupTransform("base_link",
                                                 (*current_path_).header.frame_id,
                                                 ros::Time::now(),
@@ -60,20 +61,23 @@ void PathFollower::Update() {
     }
     path_start_index_ = std::distance((*current_path_).poses.begin(), it) - 1;
 
-    int points_to_end = std::distance(it, (*current_path_).poses.end()) - 1;
+    int points_to_end = std::distance(it, (*current_path_).poses.end());
     double estimated_remaining_distance = points_to_end * discretization_;
 
-    it += std::min(points_to_end, lookahead_points);
+    it += std::min(points_to_end-1, lookahead_points);
 
     geometry_msgs::PoseStamped lookahead_pose;
     tf2::doTransform(*it, lookahead_pose, transform);
 
     double turning_radius = 0;
-    if ( lookahead_pose.pose.position.x > 0 )
-        turning_radius = (lookahead_distance_ * lookahead_distance_) / (2.0 * lookahead_pose.pose.position.y);
+    if ( lookahead_pose.pose.position.y != 0 )
+        turning_radius = -(lookahead_distance_ * lookahead_distance_) / (2.0 * lookahead_pose.pose.position.y);
 
     static std_msgs::Float64 velocity_command;
-    velocity_command.data = velocity_limiter_.Update(estimated_remaining_distance);
+    double speed = 0;
+    if ( estimated_remaining_distance > 0 )
+        speed = 0.7;
+    velocity_command.data = speed;
     velocity_publisher_.publish(velocity_command);
 
     static std_msgs::Float64 turning_command;

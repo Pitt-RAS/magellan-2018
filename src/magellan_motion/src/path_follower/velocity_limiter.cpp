@@ -15,6 +15,7 @@ double VelocityLimiter::Update(double remaining_path_length) {
     velocity_ += max_acc_ * dt;
 
     double max_allowed_velocity = std::sqrt(2.0 * max_acc_ * remaining_path_length);
+    ROS_WARN("remaining path length %2.4f\n", remaining_path_length);
     velocity_ = std::min(velocity_, max_allowed_velocity);
     velocity_ = std::max(velocity_, max_vel_);
 }
