@@ -6,8 +6,8 @@ PathMarkers::PathMarkers(ros::NodeHandle& nh, int marker_hz) :
         next_update_(ros::Time::now()),
         lookahead_marker_(),
         closest_point_marker_(),
-        lookahead_marker_publisher_(nh.advertise<visualization_msgs::Marker>("/path_follower/lookahead_marker", 10)),
-        closest_point_marker_publisher_(nh.advertise<visualization_msgs::Marker>("/path_follower/closest_point_marker",
+        lookahead_marker_publisher_(nh.advertise<visualization_msgs::Marker>("/markers/lookahead_marker", 10)),
+        closest_point_marker_publisher_(nh.advertise<visualization_msgs::Marker>("/markers/closest_point_marker",
                                                                                  10)) {
     lookahead_marker_.header.frame_id = "base_link";
     lookahead_marker_.type = visualization_msgs::Marker::SPHERE;

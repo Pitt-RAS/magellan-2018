@@ -23,10 +23,7 @@ void Robot::TeleopInit() {
 
 void Robot::TeleopPeriodic() {
     // Get the throttle percent from the Transmitter Interface and pass it to PWM
-    double throttle = transmitter_.throttle_percent();
-    if ( throttle > 0.2 )
-        throttle = 0.2;
-    drivetrain_.SetThrottlePercent(throttle);
+    drivetrain_.SetThrottlePercent(transmitter_.throttle_percent());
 
     // Get the steering angle from the Transmitter Interface and pass it to PWM
     drivetrain_.SetSteeringPercent(transmitter_.steering_angle() / 90.0);
@@ -42,7 +39,7 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {
     drivetrain_.SetThrottlePercent(throttle_percent_);
-    drivetrain_.SetSteeringAngle(steering_angle_);
+    drivetrain_.SetSteeringAngle(-steering_angle_);
 }
 
 void Robot::DisabledInit() {
