@@ -6,7 +6,7 @@ from geometry_msgs.msg import PoseStamped
 
 rospy.init_node('stupid_path')
 
-goal_distance = 5
+goal_distance = 10
 step_distance = 0.01
 
 steps = int(goal_distance / step_distance)
@@ -26,7 +26,7 @@ for step in range(steps):
 
 for step in range(steps):
     pose = PoseStamped()
-    pose.pose.position.x = 5 + step_distance * step
+    pose.pose.position.x = goal_distance + step_distance * step
     pose.pose.position.y = -0.5
     pose.pose.orientation.x = 0
     pose.pose.orientation.y = 0
