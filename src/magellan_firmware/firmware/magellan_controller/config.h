@@ -46,7 +46,7 @@ const constexpr double kMaxTurningAngle = M_PI / 6.0;
 
 const constexpr double kIMUAccelVariance[2] = {10, 10};
 const constexpr double kIMUOrientationVariance = 1e-5;
-const constexpr double kIMUGyroVariance = 0.001;
+const constexpr double kIMUGyroVariance = 0.00001;
 const constexpr double kVelocityVariance = 1;
 const constexpr double kDistancePerTick = (0.079 * 3.14) / 10.0;
 

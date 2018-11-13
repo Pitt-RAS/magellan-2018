@@ -28,8 +28,22 @@ PathFollower::PathFollower(ros::NodeHandle& nh,
 }
 
 void PathFollower::UpdatePath(nav_msgs::Path::ConstPtr path) {
-    current_path_ = path;
-    path_start_index_ = 0;
+    try {
+//        if ( path->header.frame_id != "odom" ) {
+//            ROS_INFO("Transforming path into odom");
+//            auto transform = tf_buffer_.lookupTransform("odom",
+//                                                        path->header.frame_id,
+//                                                        ros::Time::now(),
+//                                                        ros::Duration(0.5));
+//            for ( auto pose : path->poses )
+//                tf2::doTransform(pose, pose, transform);
+//            path->header.frame_id = "odom";
+//        }
+        current_path_ = path;
+        path_start_index_ = 0;
+    }
+    catch (tf2::TransformException e) {
+    }
 }
 
 void PathFollower::Update() {
@@ -49,7 +63,7 @@ void PathFollower::Update() {
 
     int lookahead_points = lookahead_distance_ / discretization_;
 
-    auto it = (*current_path_).poses.begin();
+    auto it = current_path_->poses.begin();
     geometry_msgs::PoseStamped closest_point;
     tf2::doTransform(*it, closest_point, transform);
     geometry_msgs::PoseStamped temp;
@@ -59,12 +73,12 @@ void PathFollower::Update() {
             break;
         closest_point = temp;
     }
-    path_start_index_ = std::distance((*current_path_).poses.begin(), it) - 1;
+    path_start_index_ = std::distance(current_path_->poses.begin(), it) - 1;
 
-    int points_to_end = std::distance(it, (*current_path_).poses.end());
+    int points_to_end = std::distance(it, current_path_->poses.end());
     double estimated_remaining_distance = points_to_end * discretization_;
 
-    it += std::min(points_to_end-1, lookahead_points);
+    it += std::min(points_to_end - 1, lookahead_points);
 
     geometry_msgs::PoseStamped lookahead_pose;
     tf2::doTransform(*it, lookahead_pose, transform);

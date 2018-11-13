@@ -10,6 +10,7 @@ import numpy as np
 
 rospy.init_node("viz_turning_radius")
 
+
 class TurningRadiusVisualization:
     def __init__(self):
         self._marker_pub = rospy.Publisher("/markers/turning_radius", Marker, queue_size=3)
@@ -55,6 +56,7 @@ class TurningRadiusVisualization:
     def update(self):
         self._marker.points = self._get_points_on_radius()
         self._marker_pub.publish(self._marker)
+
 
 rate = rospy.Rate(5)
 visualization = TurningRadiusVisualization()
