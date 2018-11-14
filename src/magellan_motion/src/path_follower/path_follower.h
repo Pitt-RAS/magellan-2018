@@ -31,6 +31,7 @@ private:
 
     double discretization_;
     double lookahead_distance_;
+    double max_vel_;
     double max_acc_;
 
     void UpdatePath(nav_msgs::Path::ConstPtr path);

@@ -28,56 +28,43 @@ PathFollower::PathFollower(ros::NodeHandle& nh,
 }
 
 void PathFollower::UpdatePath(nav_msgs::Path::ConstPtr path) {
-    try {
-//        if ( path->header.frame_id != "odom" ) {
-//            ROS_INFO("Transforming path into odom");
-//            auto transform = tf_buffer_.lookupTransform("odom",
-//                                                        path->header.frame_id,
-//                                                        ros::Time::now(),
-//                                                        ros::Duration(0.5));
-//            for ( auto pose : path->poses )
-//                tf2::doTransform(pose, pose, transform);
-//            path->header.frame_id = "odom";
-//        }
-        current_path_ = path;
-        path_start_index_ = 0;
-    }
-    catch (tf2::TransformException e) {
-    }
+    current_path_ = path;
+    path_start_index_ = 0;
 }
 
 void PathFollower::Update() {
     if ( !current_path_ )
         return;
 
-    if ( (*current_path_).poses.size() == 0 ) {
+    if ( current_path_->poses.size() == 0 ) {
         ROS_WARN("Commanded path is empty");
         return;
     }
 
 
     auto transform = tf_buffer_.lookupTransform("base_link",
-                                                (*current_path_).header.frame_id,
+                                                current_path_->header.frame_id,
                                                 ros::Time::now(),
                                                 ros::Duration(1.0));
 
-    int lookahead_points = lookahead_distance_ / discretization_;
 
     auto it = current_path_->poses.begin();
     geometry_msgs::PoseStamped closest_point;
     tf2::doTransform(*it, closest_point, transform);
     geometry_msgs::PoseStamped temp;
-    for ( it += 0; it != (*current_path_).poses.end(); ++it) {
+    for ( it += 0; it != current_path_->poses.end(); ++it) {
         tf2::doTransform(*it, temp, transform);
         if ( L2Norm(temp) > L2Norm(closest_point) )
             break;
         closest_point = temp;
     }
+    double cross_track_error = L2Norm(closest_point);
     path_start_index_ = std::distance(current_path_->poses.begin(), it) - 1;
 
     int points_to_end = std::distance(it, current_path_->poses.end());
     double estimated_remaining_distance = points_to_end * discretization_;
 
+    int lookahead_points = (lookahead_distance_ + cross_track_error) / discretization_;
     it += std::min(points_to_end - 1, lookahead_points);
 
     geometry_msgs::PoseStamped lookahead_pose;
@@ -90,7 +77,7 @@ void PathFollower::Update() {
     static std_msgs::Float64 velocity_command;
     double speed = 0;
     if ( estimated_remaining_distance > 0 )
-        speed = 0.7;
+        speed = max_vel_;
     velocity_command.data = speed;
     velocity_publisher_.publish(velocity_command);
 

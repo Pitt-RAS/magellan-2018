@@ -38,10 +38,18 @@ PathMarkers::PathMarkers(ros::NodeHandle& nh, int marker_hz) :
 
 void PathMarkers::UpdateLookahead(geometry_msgs::PoseStamped& pose) {
     lookahead_marker_.pose = pose.pose;
+    lookahead_marker_.pose.orientation.x = 0;
+    lookahead_marker_.pose.orientation.y = 0;
+    lookahead_marker_.pose.orientation.z = 0;
+    lookahead_marker_.pose.orientation.w = 1;
 }
 
 void PathMarkers::UpdateClosestPoint(geometry_msgs::PoseStamped& pose) {
     closest_point_marker_.pose = pose.pose;
+    closest_point_marker_.pose.orientation.x = 0;
+    closest_point_marker_.pose.orientation.y = 0;
+    closest_point_marker_.pose.orientation.z = 0;
+    closest_point_marker_.pose.orientation.w = 1;
 }
 
 void PathMarkers::Update() {
