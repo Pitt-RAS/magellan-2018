@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from math import pi, sin, cos, degrees
+from math import pi, sin, cos
 
 import rospy
 from std_msgs.msg import Float64, ColorRGBA
