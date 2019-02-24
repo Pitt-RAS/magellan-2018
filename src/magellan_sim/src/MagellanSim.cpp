@@ -22,8 +22,9 @@ void MagellanSim::run() {
     while (node_handle_.ok()) {
         ros::spinOnce();
         Update();
-        ROS_INFO("Velocity: %0.2f\t Steering Angle: %0.2f", velocity_, commanded_radius_);
+        ROS_INFO("Velocity: %0.2f\t Turning Radius: %0.2f", velocity_, commanded_radius_);
         refresh_rate_.sleep();
+        time_ = ros::Time::now();
     }
 }
 
@@ -50,18 +51,12 @@ void MagellanSim::UpdateYaw() {
 
 /*
  * Updates commanded velocity from message and then updates sim's velocity
- * This member function just calculates the ideal velocity
- * At this point, this member function has no upper limit on the vehicle
+ * At this point, this member function just matches the velocity as doing the math
+ * Seem to have not a significant enough difference to justify complexity
  */
 void MagellanSim::UpdateThrottle(const std_msgs::Float64& cmd_velocity) {
     commanded_velocity_ = cmd_velocity.data;
-    ros::Time current_time = ros::Time::now();
-    double sim_accel = 3.5765; // acceleration, 0-40 in 5 seconds
-    if (commanded_velocity_ - velocity_ > 0.005) {
-        ros::Duration delta_time = current_time - time_;
-        velocity_ += sim_accel * delta_time.toSec();
-    }
-    time_ = current_time;
+    velocity_ = commanded_velocity_;
 }
 
 /*
