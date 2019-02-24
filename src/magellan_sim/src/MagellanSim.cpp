@@ -51,7 +51,7 @@ void MagellanSim::UpdateYaw() {
 
 /*
  * Updates commanded velocity from message and then updates sim's velocity
- * At this point, this member function just matches the velocity as doing the math 
+ * At this point, this member function just matches the velocity as doing the math
  * Seem to have not a significant enough difference to justify complexity
  */
 void MagellanSim::UpdateThrottle(const std_msgs::Float64& cmd_velocity) {
