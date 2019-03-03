@@ -1,0 +1,12 @@
+<launch>
+    <node type="gps_odom_node" name="gps_odom_node" pkg="gps_odom">
+        <param name="odomN" value="/odometry/filtered"/>
+
+        <rosparam param="odomN_config">[true,  true,  false,
+                                        false, false, false,
+                                        false, false, false,
+                                        false, false, false,
+                                        false, false, false]</rosparam>
+        <param name="odomN_differential" value="false"/>                           
+    </node>
+</launch>
