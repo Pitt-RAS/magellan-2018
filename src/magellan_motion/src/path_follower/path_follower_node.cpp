@@ -32,21 +32,23 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    double kP;
-    if ( !private_nh.getParam("kP", kP) ) {
-        ROS_ERROR("kP constant param unset");
+    double stanley_gain;
+    if ( !private_nh.getParam("stanley_gain", stanley_gain) ) {
+        ROS_ERROR("stanley_gain param unset");
         ros::shutdown();
         return 0;
     }
 
+    /*
     double kD;
     if ( !private_nh.getParam("kD", kD) ) {
         ROS_ERROR("kD constant param unset");
         ros::shutdown();
         return 0;
     }
+    */
 
-    PathFollower path_follower(nh, discretization, max_velocity, max_acceleration, kP, kD);
+    PathFollower path_follower(nh, discretization, max_velocity, max_acceleration, stanley_gain);
 
     while (ros::ok()) {
         try {

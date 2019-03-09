@@ -12,11 +12,10 @@
 
 class PathFollower {
 public:
-    PathFollower(ros::NodeHandle& nh, double discretization, double max_vel, double max_acc, double kP, double kD);
+    PathFollower(ros::NodeHandle& nh, double discretization, double max_vel, double max_acc, double stanley_gain);
     void Update();
 private:
-    double kP_;
-    double kD_;
+    double stanley_gain_;
     ros::NodeHandle& nh_;
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;

@@ -1,6 +1,9 @@
 #include "path_follower.h"
 #include <std_msgs/Float64.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+//#include <tf/Matrix3x3.h>
+//#include <tf/tf.h>
+//#include <tf/transform_datatypes.h>
 #include <magellan_core/ActuatorCommand.h>
 #include <optional>
 #include <cmath>
@@ -34,7 +37,7 @@ PathFollower::PathFollower(ros::NodeHandle& nh,
         path_start_index_(0),
         discretization_(discretization),
         max_acc_(max_acc) {
-            ROS_WARN("Started kp= %2.2f kd= %2.2f", kP_, kD_);
+            ROS_WARN("Started stanley gain= %2.2f", stanley_gain_);
 }
 
 void PathFollower::UpdatePath(nav_msgs::Path::ConstPtr path) {
@@ -78,9 +81,7 @@ void PathFollower::Update() {
             break;
         closest_point = temp;
     }
-
-    
-    
+ 
     double cross_track_error = L2Norm(closest_point);
     path_start_index_ = std::distance(current_path_->poses.begin(), it) - 1;
     double lookahead_distance_ = 0.5 + std::max(cross_track_error, 1.0);
@@ -93,14 +94,25 @@ void PathFollower::Update() {
 
     double linear_velocity = L2Norm(current_odom_->twist.twist.linear);
 
+    tf2::Quaternion q(closest_point.pose.orientation.x,
+                      closest_point.pose.orientation.y,
+                      closest_point.pose.orientation.z,
+                      closest_point.pose.orientation.w);
+
+    tf2::Matrix3x3 rot_mat(q);
+    double roll, pitch, yaw;
+    rot_mat.getRPY(roll, pitch, yaw);
+    double robot_heading = yaw;
+
     //command.steering_angle = std::copysign(lookahead_pose.pose.position.x * kP_, -lookahead_pose.pose.position.y);
-    command.steering_angle = robot_heading + atan(stanley_gain_ * cross_track_error / linear_velocity);
+    command.steering_angle = std::copysign(robot_heading + atan(stanley_gain_ * cross_track_error / linear_velocity), closest_point.pose.position.y);
 
     double estimated_remaining_distance = points_to_end * discretization_;
 
     double speed = 0;
     if ( estimated_remaining_distance > 0 )
         speed = max_vel_;
+
     command.velocity = speed;
 
     actuator_publisher_.publish(command);
