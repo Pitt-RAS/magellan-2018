@@ -42,10 +42,10 @@ class PathPlanner(object):
         self._queue = MotionQueue([])
 
     def _is_goal(self, node):
-        return node[1]==self._goal[0] and node[2]==self._goal[1]
+        return node[1] == self._goal[0] and node[2] == self._goal[1]
 
     def _get_cost(self, pose):
-        return math.sqrt((pose[0]-self._goal[0])^2 + (pose[1]-self._goal[1])^2)
+        return math.sqrt((pose[0]-self._goal[0]) ^ 2 + (pose[1]-self._goal[1]) ^ 2)
 
     def plan(self, start):
         if self._goal is None or start is None:
