@@ -21,10 +21,22 @@ MagellanSim::MagellanSim(ros::NodeHandle& nh) :
 void MagellanSim::run() {
     while (node_handle_.ok()) {
         ros::spinOnce();
+        ros::Time current_time = ros::Time::now();
+        if (abs(velocity_ - commanded_velocity_) > 0.005) {
+            // Update velocity
+            double sim_accel = 5.96; // acceleration, 0-40 mph in 3 seconds 
+            ros::Duration delta_time = current_time - time_;
+            if (velocity_ < commanded_velocity_) {
+                // positive acceleration
+                velocity_ += sim_accel * delta_time.toSec();
+            } else {
+                velocity_ -= sim_accel * delta_time.toSec();
+            }
+        }
         Update();
         ROS_INFO("Velocity: %0.2f\t Turning Radius: %0.2f", velocity_, commanded_radius_);
         refresh_rate_.sleep();
-        time_ = ros::Time::now();
+        time_ = current_time;
     }
 }
 
@@ -56,7 +68,7 @@ void MagellanSim::UpdateYaw() {
  */
 void MagellanSim::UpdateThrottle(const std_msgs::Float64& cmd_velocity) {
     commanded_velocity_ = cmd_velocity.data;
-    velocity_ = commanded_velocity_;
+    // velocity_ = commanded_velocity_;
 }
 
 /*
