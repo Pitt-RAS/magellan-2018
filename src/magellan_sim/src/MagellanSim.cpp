@@ -26,15 +26,18 @@ void MagellanSim::run() {
             // Update velocity
             double sim_accel = 5.96; // acceleration, 0-40 mph in 3 seconds 
             ros::Duration delta_time = current_time - time_;
-            if (velocity_ < commanded_velocity_) {
+            double delta_vel = commanded_velocity_ - velocity_;
+            if (delta_vel > 0.1) {
                 // positive acceleration
                 velocity_ += sim_accel * delta_time.toSec();
-            } else {
+            } else if (delta_vel < -0.1) {
                 velocity_ -= sim_accel * delta_time.toSec();
+            } else {
+                velocity_ = commanded_velocity_;
             }
         }
         Update();
-        ROS_INFO("Velocity: %0.2f\t Turning Radius: %0.2f", velocity_, commanded_radius_);
+        ROS_DEBUG("Velocity: %0.2f\t Turning Radius: %0.2f", velocity_, commanded_radius_);
         refresh_rate_.sleep();
         time_ = current_time;
     }
