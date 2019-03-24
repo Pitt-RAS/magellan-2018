@@ -1,5 +1,0 @@
-<launch>
-    <include file="$(find magellan_core)/launch/robot_localization.launch" />
-    <include file="$(find magellan_core)/launch/gps.launch" />
-    <include file="$(find magellan_core)/launch/navsat_transform_node.launch" />
-</launch>
