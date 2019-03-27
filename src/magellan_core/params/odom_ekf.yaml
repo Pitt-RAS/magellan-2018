@@ -81,8 +81,6 @@ twist0_queue_size: 5
 #twist0_twist_rejection_threshold: 0.8                #
 #twist0_linear_acceleration_rejection_threshold: 0.8  #
 
-
-
 imu0: /platform/imu
 imu0_config: [false, false, false,
               false, false,  false,
@@ -114,6 +112,13 @@ imu0_remove_gravitational_acceleration: false
 # inputs, the control term will be ignored.
 # Whether or not we use the control input during predicition. Defaults to false.
 use_control: false
+# Whether the input (assumed to be cmd_vel) is a geometry_msgs/Twist or geometry_msgs/TwistStamped message. Defaults to
+# false.
+stamped_control: false
+# The last issued control command will be used in prediction for this period. Defaults to 0.2.
+control_timeout: 0.2
+# Which velocities are being controlled. Order is vx, vy, vz, vroll, vpitch, vyaw.
+control_config: [true, false, false, false, false, true]
 # Whether the input (assumed to be cmd_vel) is a geometry_msgs/Twist or geometry_msgs/TwistStamped message. Defaults to
 # false.
 stamped_control: false
@@ -176,4 +181,3 @@ initial_estimate_covariance: [1e-9, 0,    0,    0,    0,    0,    0,    0,    0,
                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     1e-9, 0,    0,
                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    1e-9, 0,
                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    1e-9]
-
