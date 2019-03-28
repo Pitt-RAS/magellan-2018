@@ -24,7 +24,7 @@ void MagellanSim::run() {
         ros::Time current_time = ros::Time::now();
         if (abs(velocity_ - commanded_velocity_) > 0.005) {
             // Update velocity
-            double sim_accel = 5.96; // acceleration, 0-40 mph in 3 seconds 
+            double sim_accel = 5.96; // acceleration, 0-40 mph in 3 seconds
             ros::Duration delta_time = current_time - time_;
             double delta_vel = commanded_velocity_ - velocity_;
             if (delta_vel > 0.1) {
