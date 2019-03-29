@@ -32,13 +32,28 @@ private:
     double getHeuristic(double x, double y);
     void resetMap();
     void resetGraph();
+    bool isGoal(double x, double y);
 
     std::vector< std::vector<bool> > map;
     std::vector< std::vector<MagellanPlanner::Successor> > graph;
+
+    std::function<bool(const std::shared_ptr<const Successor>&,
+                       const std::shared_ptr<const Successor>&)>
+        comp_ = [](const std::shared_ptr<const Successor>& a,
+                   const std::shared_ptr<const Succesor>& b) {
+            return (a_-> gCost + a->hCost) > (b->gCost + b->hCost);
+        };
+    
+    std::priority_queue<std::shared_ptr<Successor>,
+                        std::vector<std::shared_ptr<Successor>>,
+                        decltype(comp_)>
+        open_;
+
     double startX;
     double startY;
     double goalX;
     double goalY;
+    double _resolution;
 };
 }
 #endif // MAGELLAN_PLANNER_H
