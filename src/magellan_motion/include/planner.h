@@ -16,8 +16,10 @@
 #include <nav_msgs/Path.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/PoseStamped.h>
 
 using geometry_msgs::Point;
+using geometry_msgs::PoseStamped;
 using nav_msgs::Path;
 
 namespace MagellanPlanner {
@@ -37,15 +39,13 @@ class PathPlanner {
 public:
     PathPlanner(ros::NodeHandle& nh, double resolution);
     int getKey(double x, double y);
+    Path getPlan(std::shared_ptr<Successor> goalNode);
     Path plan(Point goal);
 private:
     bool isFree(double x, double y);
     double getHeuristic(double x, double y);
-    void resetGraph();
     bool isGoal(double x, double y);
     void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
-
-    std::vector< std::vector<MagellanPlanner::Successor> > graph;
 
     std::unordered_map<int, std::shared_ptr<Successor>> nodes;
 

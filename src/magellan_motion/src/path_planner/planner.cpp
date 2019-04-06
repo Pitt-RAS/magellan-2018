@@ -26,25 +26,62 @@ PathPlanner::PathPlanner(ros::NodeHandle& nh, double resolution)
     goalX(0),
     goalY(0),
     _resolution(resolution),
-    open_(comp_),
-    graph(10/resolution, std::vector<Successor>(10/resolution, {false, INF_VALUE, INF_VALUE, 0, 0}))
+    open_(comp_)
 {
     mapSize = 10/resolution;
-    ros::Subscriber map_sub = nh.subscribe<nav_msgs::OccupancyGrid>("fake_obstacles", 0, &PathPlanner::mapCallback);
+    ros::Subscriber map_sub = nh.subscribe(
+                            "fake_obstacles",
+                            10,
+                            &PathPlanner::mapCallback,
+                            this);
     _has_map = false;
 }
 
 int PathPlanner::getKey(double x, double y) {
     int xMap = (int) x/_resolution;
     int yMap = (int) y/_resolution;
-    return ((xMapy + yMap)*(xMap + yMap + 1)/2 + yMap);
+    return ((xMap + yMap)*(xMap + yMap + 1)/2 + yMap);
+}
+
+Path PathPlanner::getPlan(std::shared_ptr<Successor> goalNode) {
+    Path p;
+    double totalCost = 0;
+    int planSize = 0;
+
+    std::vector<PoseStamped> planVector;
+
+    if (goalNode == nullptr) {
+        ROS_ERROR("PathPlanner: Goal Node is null");
+        return p;
+    }
+
+    std::shared_ptr<const Successor> parent = goalNode->parent;
+
+    while (parent != nullptr) {
+        PoseStamped pt;
+        pt.pose.position.x = parent->xPose;
+        pt.pose.position.y = parent->yPose;
+        totalCost = totalCost + parent->gCost;
+
+        planVector.push_back(pt);
+        parent = parent->parent;
+    }
+
+    ROS_INFO_STREAM("PathPlanner: total plan cost: " << totalCost);
+
+    std::reverse(planVector.begin(), planVector.end());
+
+    p.poses = planVector;
+    return p;
 }
 
 Path PathPlanner::plan(Point goal) {
+    ROS_INFO("PathPlanner: Start");
+    std::chrono::time_point<std::chrono::high_resolution_clock> startTime =
+                                    std::chrono::high_resolution_clock::now();
+
     goalX = goal.x;
     goalY = goal.y;
-
-    Path p;
 
     if (!isFree(goalX, goalY)) {
         ROS_ERROR("PathPlanner: Goal is not free!!!!");
@@ -66,50 +103,68 @@ Path PathPlanner::plan(Point goal) {
 
     int numExpand = 0;
 
-    while (ros::ok() && !open_.empy() && !goalFound) {
+    while (ros::ok() && !open_.empty() && !goalFound) {
         numExpand++;
-        for (int dir = 0; dir < NUMOFDIRS; dir++) {
-            // generate all valid successors
-            int newx = next->xPose + dX[dir];
-            int newy = next->yPose + dY[dir];
-            double cc = costs[dir] + next->gCost;
-
-            if (newx >= 1 && newx <= x_size && newy >= 1 && newy <= y_size){
-                // if inside map
-                if (isFree(newx,newy,x_size,y_size)){
-                    // if free
-                    /*PlannerNode * newSuc = &mapNodes[newx][newy];
-                    if (newSuc->gCost > cc){
-                        // gCost of successor is larger than new g cost
-                        newSuc->gCost = cc;
-                        newSuc->hCost = heuristic(newx, newy, goalposeX, goalposeY);
-                        if (newSuc->closed != 1){
-                            q.push(newSuc);
-                        }
-                    }*/
-                }
-            }
-        }
 
         std::shared_ptr<Successor> next = open_.top();
         open_.pop();
 
-        if (!next->closed) {
-            next->closed = true;
+        if (next->closed) continue;
 
+        if (isGoal(next->xPose, next->yPose)) {
+            const auto t_end = std::chrono::high_resolution_clock::now();
+            ROS_INFO_STREAM("PathPlanner: Goal found!");
+            ROS_INFO_STREAM("PathPlanner: num nodes expanded: "<< numExpand);
+            ROS_INFO_STREAM("PathPlanner: Planning time: "
+                    << std::chrono::duration_cast<std::chrono::milliseconds>(
+                            t_end - startTime).count()
+                    << "ms");
 
+            Path result = getPlan(next);
+            return result;
         }
 
+        for (int dir = 0; dir < NUMOFDIRS; dir++) {
+            // generate all valid successors
+            int newx = next->xPose + dX[dir];
+            int newy = next->yPose + dY[dir];
+            int key = getKey(newx, newy);
+            double cc = costs[dir] + next->gCost;
 
+            bool alreadyOpen = (nodes.count(key) != 0);
 
-        bool alreadyOpen = (nodes.count(next->key) !=0);
+            if (newx >= 0 && newx <= mapSize && newy >= 0 && newy <= mapSize){
+                // if inside map
+                if (isFree(newx,newy)){
+                    // if free
+                    std::shared_ptr<Successor> newNode = std::make_shared<Successor>();
 
+                    if ((alreadyOpen && cc<nodes[key]->gCost) || (!alreadyOpen && cc<INF_VALUE)) {
+                        // we have seen it but the gcost is less or we have never seen it before
+                        newNode->gCost = cc;
+                        newNode->hCost = getHeuristic(newx, newy);
+                        newNode->xPose = newx;
+                        newNode->yPose = newy;
+                        newNode->closed = false;
+                        newNode->key = key;
+                        newNode->parent = next;
 
+                        if (alreadyOpen) {
+                            nodes[key]->closed = true;
+                            nodes.erase(key);
+                        }
 
-
+                        nodes.insert({key, newNode});
+                        open_.push(newNode);
+                    }
+                }
+            }
+        }
     }
 
+    ROS_ERROR("PathPlanner: NO PATH FOUND!!");
 
+    Path p;
     return p;
 }
 
@@ -152,11 +207,6 @@ double PathPlanner::getHeuristic(double x, double y) {
     double h = (SQRT2_MINUS_ONE * MIN(abs(goalX-x), abs(goalY-y)) +
                 MAX(abs(goalX-x), abs(goalY-y)));
     return h;
-}
-
-void PathPlanner::resetGraph() {
-    Successor defaultNode = {false, INF_VALUE, INF_VALUE, 0, 0};
-    std::fill(graph.begin(), graph.end(), defaultNode);
 }
 
 bool PathPlanner::isGoal(double x, double y) {
