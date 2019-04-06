@@ -1,13 +1,20 @@
 #ifndef MAGELLAN_PLANNER_H
 #define MAGELLAN_PLANNER_H
 
+// system and ros headers
 #include <ros/ros.h>
-#include <time.h>
+#include <chrono>
 #include <functional>
-#include <queue>
+#include <iostream>
+#include <memory>
+
+// data structure headers
+#include <queue> 
+#include <unordered_map>
 
 // message header
 #include <nav_msgs/Path.h>
+#include <nav_msgs/OccupancyGrid.h>
 #include <geometry_msgs/Point.h>
 
 using geometry_msgs::Point;
@@ -16,32 +23,37 @@ using nav_msgs::Path;
 namespace MagellanPlanner {
 // struct to define nodes for planners
 struct Successor {
-    bool free;     // free or obstacle
     bool closed;
     double gCost;     // g* value
     double hCost;     // H value
     double xPose;
     double yPose;
+    int key;
+    std::shared_ptr<Successor> parent;
 };
+
 
 class PathPlanner {
 public:
-    PathPlanner();
-    Path plan(Point start, Point goal);
+    PathPlanner(ros::NodeHandle& nh, double resolution);
+    int getKey(double x, double y);
+    Path plan(Point goal);
 private:
+    bool isFree(double x, double y);
     double getHeuristic(double x, double y);
-    void resetMap();
     void resetGraph();
     bool isGoal(double x, double y);
+    void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
 
-    std::vector< std::vector<bool> > map;
     std::vector< std::vector<MagellanPlanner::Successor> > graph;
+
+    std::unordered_map<int, std::shared_ptr<Successor>> nodes;
 
     std::function<bool(const std::shared_ptr<const Successor>&,
                        const std::shared_ptr<const Successor>&)>
         comp_ = [](const std::shared_ptr<const Successor>& a,
-                   const std::shared_ptr<const Succesor>& b) {
-            return (a_-> gCost + a->hCost) > (b->gCost + b->hCost);
+                   const std::shared_ptr<const Successor>& b) {
+            return (a-> gCost + a->hCost) > (b->gCost + b->hCost);
         };
     
     std::priority_queue<std::shared_ptr<Successor>,
@@ -49,11 +61,15 @@ private:
                         decltype(comp_)>
         open_;
 
+    nav_msgs::OccupancyGrid _map;
+
     double startX;
     double startY;
     double goalX;
     double goalY;
     double _resolution;
+    double mapSize; // num of cells in graph
+    bool _has_map;
 };
 }
 #endif // MAGELLAN_PLANNER_H

@@ -25,6 +25,7 @@ using geometry_msgs::Point;
 
 typedef actionlib::SimpleActionServer<magellan_motion::PlannerRequestAction> Server;
 
+
 // Main entry point for the motion planner
 int main(int argc, char** argv)
 {
@@ -50,12 +51,12 @@ int main(int argc, char** argv)
     while (ros::ok() && ros::Time::now() == ros::Time(0)) {
         // wait
         ros::spinOnce();
+
         ros::Duration(.005).sleep();
     }
 
     Server server(nh, "planner_request", false);
     server.start();
-
 
     // Cache the time
     ros::Time last_time = ros::Time::now();
