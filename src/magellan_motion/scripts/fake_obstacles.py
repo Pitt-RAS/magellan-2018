@@ -14,7 +14,7 @@ if __name__ == '__main__':
     x_meters = 10
     y_meters = 10
 
-    resolution = .01 # 10 cm
+    resolution = .01  # 10 cm
 
     numX = int(x_meters/resolution)
     numY = int(y_meters/resolution)

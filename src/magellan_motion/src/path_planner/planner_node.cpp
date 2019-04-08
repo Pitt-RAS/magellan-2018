@@ -23,7 +23,6 @@
 
 typedef actionlib::SimpleActionServer<magellan_motion::PlannerRequestAction> Server;
 
-
 // Main entry point for the motion planner
 int main(int argc, char** argv)
 {

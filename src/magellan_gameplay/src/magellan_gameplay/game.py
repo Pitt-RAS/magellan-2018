@@ -2,9 +2,8 @@
 import rospy
 import actionlib
 
-from gameplay_exception import GameplayException
-from magellan_core.msg import WaypointStamped
 from magellan_motion.msg import PlannerRequestAction, PlannerRequestGoal
+
 
 class GameplayNode(object):
     def __init__(self):
@@ -15,7 +14,7 @@ class GameplayNode(object):
         if rospy.is_shutdown():
             raise rospy.ROSInitException()
 
-        self._goals = [(1,2), (3,4)]
+        self._goals = [(1, 2), (3, 4)]
 
         self._rate = rospy.Rate(10)
 
@@ -28,8 +27,6 @@ class GameplayNode(object):
             self._planner_client.send_goal_and_wait(goal_)
 
             self._rate.sleep()
-
-
 
 
 if __name__ == '__main__':

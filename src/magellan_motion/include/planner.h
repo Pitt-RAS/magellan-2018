@@ -9,7 +9,7 @@
 #include <memory>
 
 // data structure headers
-#include <queue> 
+#include <queue>
 #include <unordered_map>
 
 // message header
@@ -47,19 +47,19 @@ private:
     bool isGoal(double x, double y);
     void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
 
-    std::unordered_map<int, std::shared_ptr<Successor>> nodes;
+    std::unordered_map<int, std::shared_ptr<Successor> > nodes;
 
     std::function<bool(const std::shared_ptr<const Successor>&,
                        const std::shared_ptr<const Successor>&)>
-        comp_ = [](const std::shared_ptr<const Successor>& a,
-                   const std::shared_ptr<const Successor>& b) {
-            return (a-> gCost + a->hCost) > (b->gCost + b->hCost);
-        };
-    
+    comp_ = [](const std::shared_ptr<const Successor>& a,
+               const std::shared_ptr<const Successor>& b) {
+                return (a->gCost + a->hCost) > (b->gCost + b->hCost);
+            };
+
     std::priority_queue<std::shared_ptr<Successor>,
-                        std::vector<std::shared_ptr<Successor>>,
+                        std::vector<std::shared_ptr<Successor> >,
                         decltype(comp_)>
-        open_;
+    open_;
 
     nav_msgs::OccupancyGrid _map;
 
