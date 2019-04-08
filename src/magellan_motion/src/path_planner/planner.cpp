@@ -26,14 +26,10 @@ PathPlanner::PathPlanner(ros::NodeHandle& nh, double resolution)
     goalX(0),
     goalY(0),
     _resolution(resolution),
-    open_(comp_)
+    open_(comp_),
+    map_sub(nh.subscribe("/fake_map", 10, &PathPlanner::mapCallback, this))
 {
     mapSize = 10/resolution;
-    ros::Subscriber map_sub = nh.subscribe(
-                            "fake_obstacles",
-                            10,
-                            &PathPlanner::mapCallback,
-                            this);
     _has_map = false;
 }
 
@@ -45,8 +41,9 @@ int PathPlanner::getKey(double x, double y) {
 
 Path PathPlanner::getPlan(std::shared_ptr<Successor> goalNode) {
     Path p;
+    p.header.frame_id = "map";
+    p.header.stamp = ros::Time::now();
     double totalCost = 0;
-    int planSize = 0;
 
     std::vector<PoseStamped> planVector;
 
@@ -76,6 +73,12 @@ Path PathPlanner::getPlan(std::shared_ptr<Successor> goalNode) {
 }
 
 Path PathPlanner::plan(Point goal) {
+    Path p;
+    if (!_has_map){
+        ROS_ERROR("PathPlanner: Does not have map yet");
+        return p;
+    }
+
     ROS_INFO("PathPlanner: Start");
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime =
                                     std::chrono::high_resolution_clock::now();
@@ -85,8 +88,11 @@ Path PathPlanner::plan(Point goal) {
 
     if (!isFree(goalX, goalY)) {
         ROS_ERROR("PathPlanner: Goal is not free!!!!");
-        throw std::runtime_error("PathPlanner: Goal is not free!");
+        //throw std::runtime_error("PathPlanner: Goal is not free!");
+        return p;
     }
+
+    nodes.clear();
 
     std::shared_ptr<Successor> start = std::make_shared<Successor>();
     start->hCost = getHeuristic(0, 0);
@@ -102,6 +108,10 @@ Path PathPlanner::plan(Point goal) {
     bool goalFound = false;
 
     int numExpand = 0;
+
+    int numSucc = 0;
+    int numErased = 0;
+    int numInsert = 0;
 
     while (ros::ok() && !open_.empty() && !goalFound) {
         numExpand++;
@@ -125,15 +135,23 @@ Path PathPlanner::plan(Point goal) {
         }
 
         for (int dir = 0; dir < NUMOFDIRS; dir++) {
+            numSucc++;
             // generate all valid successors
-            int newx = next->xPose + dX[dir];
-            int newy = next->yPose + dY[dir];
-            int key = getKey(newx, newy);
+            double newx = next->xPose + dX[dir] * .1;
+            double newy = next->yPose + dY[dir] * .1;
+
+            double xCellsRaw = newx / _resolution;
+            double yCellsRaw = newy / _resolution;
+
+            int xCells = (int) xCellsRaw;
+            int yCells = (int) yCellsRaw;
+
+            int key = getKey(xCells, yCells);
             double cc = costs[dir] + next->gCost;
 
             bool alreadyOpen = (nodes.count(key) != 0);
 
-            if (newx >= 0 && newx <= mapSize && newy >= 0 && newy <= mapSize){
+            if (newx >= 0 && newx <= 10 && newy >= 0 && newy <= 10){
                 // if inside map
                 if (isFree(newx,newy)){
                     // if free
@@ -152,19 +170,21 @@ Path PathPlanner::plan(Point goal) {
                         if (alreadyOpen) {
                             nodes[key]->closed = true;
                             nodes.erase(key);
+                            numErased++;
                         }
 
                         nodes.insert({key, newNode});
                         open_.push(newNode);
+                        numInsert++;
                     }
                 }
             }
         }
     }
 
-    ROS_ERROR("PathPlanner: NO PATH FOUND!!");
+    ROS_ERROR_STREAM("PathPlanner: NO PATH FOUND!! NODES EXPANDED: " << numExpand);
+    ROS_ERROR_STREAM("NUM SUCC: " << numSucc << " NUM ERASED: " << numErased << " NUM INSERT: " << numInsert);
 
-    Path p;
     return p;
 }
 
@@ -181,23 +201,27 @@ bool PathPlanner::isFree(double x, double y) {
     }
 
     // convert x, y to points in map
-    int xMap = (int) x/mapResolution;
-    int yMap = (int) y/mapResolution;
+    double xRaw = x/.01;
+    double yRaw = y/.01;
+
+    int xMap = (int) xRaw;
+    int yMap = (int) yRaw;
 
     if (xMap<0 || yMap<0) {
-        ROS_ERROR("Path Planner: X and Y cell in isFree is negative");
-        throw ros::InvalidParameterException("X and Y cell in isFree are negative");
+        ROS_ERROR_STREAM("Path Planner: X: "<< xMap << " and Y: " << yMap << " cell in isFree is negative");
+        return false;
     }
 
     if (xMap>mapWidth || yMap>mapWidth) {
-        ROS_ERROR_STREAM("PathPlanner: X or Y cells are outside map; assuming free. X = " << xMap << " Y = " << yMap);
-        return true;
+        //ROS_ERROR_STREAM("PathPlanner: X or Y cells are outside map; assuming free. X = " << xMap << " Y = " << yMap);
+        return false;
     }
 
     // convert to row major order
-    int index = yMap * mapWidth + xMap;
+    double indexRaw = yMap * mapWidth + xMap;
+    int index = (int) indexRaw;
 
-    ROS_INFO_STREAM("PathPlanner: index = " << index);
+    //ROS_WARN_STREAM("X: " << x << " Y: " << y << " XMAP: " << xMap << " YMAP: " << yMap << " INDEX: " << index << " INDEX RAW: " << indexRaw);
 
     return (_map.data[index] != 100);
 }

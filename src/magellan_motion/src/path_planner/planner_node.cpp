@@ -21,8 +21,6 @@
 
 #include "planner.h"
 
-using geometry_msgs::Point;
-
 typedef actionlib::SimpleActionServer<magellan_motion::PlannerRequestAction> Server;
 
 
@@ -42,10 +40,10 @@ int main(int argc, char** argv)
     ros::NodeHandle private_nh ("~");
 
     // LOAD PARAMETERS
-    double update_frequency = 20;
+    double update_frequency = 50;
 
     // Update frequency retrieve
-    ROS_ASSERT(private_nh.getParam("~planner_update_frequency", update_frequency));
+    //ROS_ASSERT(private_nh.getParam("~planner_update_frequency", update_frequency));
 
     // Wait for a valid time in case we are using simulated time (not wall time)
     while (ros::ok() && ros::Time::now() == ros::Time(0)) {
@@ -57,6 +55,12 @@ int main(int argc, char** argv)
 
     Server server(nh, "planner_request", false);
     server.start();
+
+    ros::Publisher plan_pub = nh.advertise<nav_msgs::Path>("plan", 1000);
+
+    // construct planner
+    double resolution = .01; // 10cm
+    MagellanPlanner::PathPlanner planner(nh, resolution);
 
     // Cache the time
     ros::Time last_time = ros::Time::now();
@@ -92,6 +96,9 @@ int main(int argc, char** argv)
                 // planning goal
                 goal_ = server.acceptNewGoal();
                 ROS_INFO("New goal accepted by planner");
+
+                Path plan = planner.plan(goal_->goal);
+                plan_pub.publish(plan);
 
                 magellan_motion::PlannerRequestResult result_;
 

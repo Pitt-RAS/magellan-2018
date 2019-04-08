@@ -9,7 +9,7 @@ if __name__ == '__main__':
     rospy.init_node('fake_obstalces')
 
     map_pub = rospy.Publisher('/fake_map', OccupancyGrid, queue_size=10)
-    rate_ = rospy.Rate(10)
+    rate_ = rospy.Rate(50)
 
     x_meters = 10
     y_meters = 10

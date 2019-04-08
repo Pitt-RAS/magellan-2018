@@ -63,6 +63,8 @@ private:
 
     nav_msgs::OccupancyGrid _map;
 
+    ros::Subscriber map_sub;
+
     double startX;
     double startY;
     double goalX;
