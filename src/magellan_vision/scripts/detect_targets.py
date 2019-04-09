@@ -137,7 +137,6 @@ class TargetDetector():
         frameHSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
         rampThreshold = cv.inRange(frameHSV, (self.hueMinRamp, self.satMin, self.valMin),
                                    (self.hueMaxRamp, self.satMax, self.valMax))
-            
         rampSize = np.sum(np.sum(rampThreshold))
         imgSize = np.size(rampThreshold)
         # Don't detect a ramp if the area is less than 1% of the image
@@ -147,7 +146,7 @@ class TargetDetector():
             center = ndimage.measurements.center_of_mass(rampThreshold)
             if self.debugOutput:
                 colorThreshold = cv.cvtColor(rampThreshold, cv.COLOR_GRAY2BGR)
-                centerImage = cv.circle(colorThreshold, (int(center[1]), int(center[0])), 10, (0, 0, 255), 3)  # noqa: F841
+                centerImage = cv.circle(colorThreshold, (int(center[1]), int(center[0])), 10, (0, 0, 255), 3)
                 cv.imshow("center", centerImage)
                 cv.waitKey(0)
         return center
@@ -165,7 +164,7 @@ class TargetDetector():
         imgHeight = np.shape(frame)[0]
         for line in lines:
             line = line[0]
-            theta = math.degrees(math.atan2((line[3] - line[1]), (line[2] - line[0])))        
+            theta = math.degrees(math.atan2((line[3] - line[1]), (line[2] - line[0])))
             if abs(theta) > self.verticalPoleThresh:
                 x = (line[0] + line[2]) / 2
                 sameLine = False
