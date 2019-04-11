@@ -37,7 +37,7 @@ PathFollower::PathFollower(ros::NodeHandle& nh,
 
 void PathFollower::UpdatePath(nav_msgs::Path::ConstPtr path) {
     current_path_ = path;
-    //path_start_index_ = 0;
+    path_start_index_ = 0;
 }
 
 void PathFollower::Update() {
@@ -61,7 +61,7 @@ void PathFollower::Update() {
     geometry_msgs::PoseStamped closest_point;
     tf2::doTransform(*it, closest_point, transform);
     geometry_msgs::PoseStamped temp;
-    for ( it += path_start_index_; it != current_path_->poses.end(); ++it) {
+    for ( it += 0; it != current_path_->poses.end(); ++it) {
         tf2::doTransform(*it, temp, transform);
         if ( L2Norm(temp) > L2Norm(closest_point) )
             break;
