@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
     }
 
     PathFollower path_follower(nh,
+                               private_nh,
                                discretization,
                                lookahead_distance,
                                lookahead_multiplier,

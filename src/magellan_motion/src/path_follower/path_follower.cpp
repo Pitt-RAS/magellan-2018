@@ -12,6 +12,7 @@ static inline double L1Norm(const geometry_msgs::PoseStamped& pose) {
 }
 
 PathFollower::PathFollower(ros::NodeHandle& nh,
+                           ros::NodeHandle& private_nh,
                            double discretization,
                            double lookahead_distance,
                            double lookahead_multiplier,
@@ -19,8 +20,10 @@ PathFollower::PathFollower(ros::NodeHandle& nh,
                            double max_acc,
                            double turn_velocity_multiplier) :
         nh_(nh),
+        private_nh_(private_nh),
         tf_buffer_(),
         tf_listener_(tf_buffer_),
+        user_input_subscriber_(nh.subscribe("/platform/user", 10, &PathFollower::UpdateUserInput, this)),
         path_subscriber_(nh.subscribe("/path", 10, &PathFollower::UpdatePath, this)),
         velocity_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_velocity", 10)),
         turning_radius_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_turning_radius", 10)),
@@ -29,15 +32,30 @@ PathFollower::PathFollower(ros::NodeHandle& nh,
         current_path_(),
         path_start_index_(0),
         discretization_(discretization),
-        max_acc_(max_acc),
         lookahead_distance_(lookahead_distance),
-        lookahead_multiplier_(lookahead_multiplier_),
+        lookahead_multiplier_(lookahead_multiplier),
+        max_vel_(max_vel),
+        max_acc_(max_acc),
         turn_velocity_multiplier_(turn_velocity_multiplier) {
+}
+
+void PathFollower::UpdateUserInput(std_msgs::Int32::ConstPtr input) {
+    std::string mode = "slow";
+    
+    if ( input->data == 0 )
+        mode = "slow";
+    else if ( input->data == 127 )
+        mode = "fast";
+    else if ( input->data == 255 ) 
+        mode = "bananas";
+
+    if ( !private_nh_.getParam("max_vel_" + mode, max_vel_) )
+        ROS_WARN("Couldn't set max velocity for mode %s", mode.c_str());
 }
 
 void PathFollower::UpdatePath(nav_msgs::Path::ConstPtr path) {
     current_path_ = path;
-    path_start_index_ = 0;
+    //path_start_index_ = 0;
 }
 
 void PathFollower::Update() {
@@ -61,7 +79,7 @@ void PathFollower::Update() {
     geometry_msgs::PoseStamped closest_point;
     tf2::doTransform(*it, closest_point, transform);
     geometry_msgs::PoseStamped temp;
-    for ( it += 0; it != current_path_->poses.end(); ++it) {
+    for ( it += path_start_index_; it != current_path_->poses.end(); ++it) {
         tf2::doTransform(*it, temp, transform);
         if ( L2Norm(temp) > L2Norm(closest_point) )
             break;
@@ -85,6 +103,10 @@ void PathFollower::Update() {
 
     static std_msgs::Float64 velocity_command;
     velocity_command.data = velocity_limiter_.Update(estimated_remaining_distance);
+
+    if ( std::abs(turning_radius) < 1.5 )
+        velocity_command.data = std::min(velocity_command.data, 0.8);
+
     velocity_publisher_.publish(velocity_command);
 
     static std_msgs::Float64 turning_command;

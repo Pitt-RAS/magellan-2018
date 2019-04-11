@@ -66,14 +66,14 @@ base_link_frame: base_link  # Defaults to "base_link" if unspecified
 world_frame: odom           # Defaults to the value of odom_frame if unspecified
 
 
-odom0: /odometry/gps
-odom0_config: [true, true, false,
-               false, false, false,
-               false, false, false,
-               false, false, false,
-               false, false, false]
-odom0_differential: false
-odom0_nodelay: true
+#odom0: /odometry/gps
+#odom0_config: [true, true, false,
+#               false, false, false,
+#               false, false, false,
+#               false, false, false,
+#               false, false, false]
+#odom0_differential: false
+#odom0_nodelay: true
 
 twist0: /platform/velocity
 twist0_config: [false, false, false,
@@ -93,13 +93,13 @@ twist0_queue_size: 5
 
 imu0: /platform/imu
 imu0_config: [false, false, false,
-              false, false,  true,
               false, false, false,
-              false,  false, false,
+              false, false, false,
+              false,  false, true,
               true, true, false]
 imu0_nodelay: false
 imu0_differential: false
-imu0_relative: false
+imu0_relative: true
 imu0_queue_size: 5
 #imu0_pose_rejection_threshold: 0.8                 # Note the difference in parameter names
 #imu0_twist_rejection_threshold: 0.8                #
