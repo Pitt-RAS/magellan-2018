@@ -11,6 +11,7 @@ public:
 
     double throttle_percent();
     double steering_angle();
+    uint16_t user_setting();
 
     bool WantsEnable();
     bool WantsAutonomous();
@@ -29,6 +30,7 @@ private:
     double steering_angle_;
     bool enabled_;
     bool autonomous_;
+    uint16_t user_;
 };
 
 #endif
