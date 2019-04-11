@@ -37,7 +37,7 @@ extern RobotState currentState;
 // Distance from front wheel to back wheel
 const constexpr double kTrackLength = 0.3175;
 // Distance from left wheel to right wheel
-const constexpr double kTrackWidth = 0.254;
+const constexpr double kTrackWidth = 0.24;
 // Max velocity
 const constexpr double kMaxVelocity = 3.0;
 

@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
         }
         catch (tf2::TransformException e) {
             ROS_ERROR("path_follower: Failed to lookup transform");
+            ROS_ERROR("%s", e.what());
         }
         ros::spinOnce();
         rate.sleep();
