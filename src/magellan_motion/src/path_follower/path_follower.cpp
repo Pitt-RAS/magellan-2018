@@ -89,7 +89,7 @@ void PathFollower::Update() {
     path_start_index_ = std::distance(current_path_->poses.begin(), it) - 1;
 
     int points_to_end = std::distance(it, current_path_->poses.end());
-    double estimated_remaining_distance = points_to_end * discretization_;
+//    double estimated_remaining_distance = points_to_end * discretization_;
 
     int lookahead_points = (lookahead_distance_ + cross_track_error * lookahead_multiplier_) / discretization_;
     it += std::min(points_to_end - 1, lookahead_points);
@@ -102,7 +102,7 @@ void PathFollower::Update() {
         turning_radius = -(pow(L2Norm(lookahead_pose), 2.0)) / (2.0 * lookahead_pose.pose.position.y);
 
     static std_msgs::Float64 velocity_command;
-    velocity_command.data = velocity_limiter_.Update(estimated_remaining_distance);
+    velocity_command.data = max_vel_; //velocity_limiter_.Update(estimated_remaining_distance);
 
     if ( std::abs(turning_radius) < 1.5 )
         velocity_command.data = std::min(velocity_command.data, 0.8);

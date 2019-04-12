@@ -49,7 +49,6 @@ class FakePathNode(object):
         path = list(self._path)
         path_msg = Path()
         path_msg.header.frame_id = self._odom_frame_id
-        path_msg.header.stamp = rospy.Time.now()
 
         last = np.array(path.pop(0))
 
@@ -74,7 +73,7 @@ if __name__ == '__main__':
     rospy.init_node('fake_path')
 
     node = FakePathNode()
-    rate = rospy.Rate(2)
+    rate = rospy.Rate(1)
     retransform_period = rospy.Duration(5)
     last_retransform = rospy.Time(0)
 
