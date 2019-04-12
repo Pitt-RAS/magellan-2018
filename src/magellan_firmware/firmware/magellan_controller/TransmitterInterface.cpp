@@ -17,7 +17,7 @@ void TransmitterInterface::Update() {
     if ( r9_.read(&channels_[0], &fail_safe_, &lost_frame_) ) {
         enabled_ = channels_[4] > 1500;
         autonomous_ = channels_[5] > 1500;
-        user_ = channels_[9];
+        user_ = channels_[6];
 
         // Fail safe is only set if the radio disconnects
         // This watchdog handles if the receiver disconnects
