@@ -32,6 +32,7 @@ extern RobotState currentState;
 #define STEERING_MIN 0.05
 
 #define LEFT_ENCODER 20
+#define RUN_BUTTON 21
 #define RIGHT_ENCODER 22
 
 // Distance from front wheel to back wheel

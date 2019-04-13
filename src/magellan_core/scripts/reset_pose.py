@@ -5,6 +5,7 @@ from robot_localization.srv import SetPose
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseWithCovarianceStamped
 
+
 class PoseResetti():
     def __init__(self):
         rospy.wait_for_service('set_pose')
@@ -22,6 +23,7 @@ class PoseResetti():
             pose.header.stamp = rospy.Time.now()
             pose.header.frame_id = 'odom'
             self.poseSetter(pose)
+
 
 if __name__ == '__main__':
     rospy.init_node('PoseResetti')

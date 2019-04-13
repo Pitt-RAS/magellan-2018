@@ -88,7 +88,7 @@ void Robot::Update() {
         heartbeat_.SetState(current_state_);
     }
 
-    if ( transmitter_.IsConnected() && user_input_msg_rate_.NeedsRun() ) {
+    if ( transmitter_.WantsEnable() ) {
         user_input_msg_.data = transmitter_.user_setting();
         user_input_publisher.publish(&user_input_msg_);
     }

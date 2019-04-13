@@ -1,6 +1,14 @@
 #ifndef TRANSMITTER_INTERFACE_H
 #define TRANSMITTER_INTERFACE_H
 
+enum TransitionState {
+    ENABLED,
+    POSE_RESET,
+    PENDING_ENABLE,
+    PENDING_DISABLE,
+    DISABLED
+};
+
 #include <ros.h>
 #include <SBUS.h>
 #include "SoftWatchdog.h"
@@ -31,6 +39,8 @@ private:
     bool enabled_;
     bool autonomous_;
     uint16_t user_;
+    TransitionState state_;
+    unsigned long state_timer_;
 };
 
 #endif

@@ -23,7 +23,7 @@ PathFollower::PathFollower(ros::NodeHandle& nh,
         private_nh_(private_nh),
         tf_buffer_(),
         tf_listener_(tf_buffer_),
-        user_input_subscriber_(nh.subscribe("/platform/user", 10, &PathFollower::UpdateUserInput, this)),
+        user_input_subscriber_(nh.subscribe("/platform/user_input", 10, &PathFollower::UpdateUserInput, this)),
         path_subscriber_(nh.subscribe("/path", 10, &PathFollower::UpdatePath, this)),
         velocity_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_velocity", 10)),
         turning_radius_publisher_(nh.advertise<std_msgs::Float64>("/platform/cmd_turning_radius", 10)),
@@ -40,17 +40,8 @@ PathFollower::PathFollower(ros::NodeHandle& nh,
 }
 
 void PathFollower::UpdateUserInput(std_msgs::Int32::ConstPtr input) {
-    std::string mode = "slow";
-    
-    if ( input->data == 0 )
-        mode = "slow";
-    else if ( input->data == 127 )
-        mode = "fast";
-    else if ( input->data == 255 ) 
-        mode = "bananas";
-
-    if ( !private_nh_.getParam("max_vel_" + mode, max_vel_) )
-        ROS_WARN("Couldn't set max velocity for mode %s", mode.c_str());
+    if ( input->data == 1811 )
+        path_start_index_ = 0;
 }
 
 void PathFollower::UpdatePath(nav_msgs::Path::ConstPtr path) {
@@ -89,7 +80,7 @@ void PathFollower::Update() {
     path_start_index_ = std::distance(current_path_->poses.begin(), it) - 1;
 
     int points_to_end = std::distance(it, current_path_->poses.end());
-//    double estimated_remaining_distance = points_to_end * discretization_;
+    double estimated_remaining_distance = points_to_end * discretization_;
 
     int lookahead_points = (lookahead_distance_ + cross_track_error * lookahead_multiplier_) / discretization_;
     it += std::min(points_to_end - 1, lookahead_points);
@@ -102,7 +93,11 @@ void PathFollower::Update() {
         turning_radius = -(pow(L2Norm(lookahead_pose), 2.0)) / (2.0 * lookahead_pose.pose.position.y);
 
     static std_msgs::Float64 velocity_command;
-    velocity_command.data = max_vel_; //velocity_limiter_.Update(estimated_remaining_distance);
+    velocity_command.data = 0;
+    //velocity_limiter_.Update(estimated_remaining_distance);
+
+    if ( estimated_remaining_distance > 0 )
+        velocity_command.data = max_vel_;
 
     if ( std::abs(turning_radius) < 1.5 )
         velocity_command.data = std::min(velocity_command.data, 0.8);

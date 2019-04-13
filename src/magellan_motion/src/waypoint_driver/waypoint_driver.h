@@ -9,9 +9,9 @@
 class WaypointDriver {
 public:
     WaypointDriver(ros::NodeHandle& nh,
-                 double max_vel,
-                 double turn_velocity_multiplier,
-                 double kP);
+                   double max_vel,
+                   double turn_velocity_multiplier,
+                   double kP);
     void Update();
 private:
     ros::NodeHandle& nh_;

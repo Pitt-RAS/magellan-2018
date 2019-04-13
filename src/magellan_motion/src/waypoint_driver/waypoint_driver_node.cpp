@@ -33,9 +33,9 @@ int main(int argc, char** argv) {
     }
 
     WaypointDriver waypoint_driver(nh,
-                               max_velocity,
-                               turn_velocity_multiplier,
-                               kP);
+                                   max_velocity,
+                                   turn_velocity_multiplier,
+                                   kP);
 
     while (ros::ok()) {
         try {

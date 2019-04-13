@@ -8,9 +8,9 @@ static inline double L2Norm(const geometry_msgs::PoseStamped& pose) {
 }
 
 WaypointDriver::WaypointDriver(ros::NodeHandle& nh,
-                           double max_vel,
-                           double turn_velocity_multiplier,
-                           double kP) :
+                               double max_vel,
+                               double turn_velocity_multiplier,
+                               double kP) :
         nh_(nh),
         tf_buffer_(),
         tf_listener_(tf_buffer_),
