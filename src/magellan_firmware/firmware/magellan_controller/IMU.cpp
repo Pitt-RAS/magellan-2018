@@ -19,7 +19,7 @@ IMU::IMU(ros::NodeHandle& imu_handle) :
     sensor_offsets_.gyro_offset_z = GYRO_Z;
     sensor_offsets_.accel_radius = ACCEL_RADIUS;
     sensor_offsets_.mag_radius = MAG_RADIUS;
-    imu_.setSensorOffsets(sensor_offsets_);
+    //imu_.setSensorOffsets(sensor_offsets_);
     // ROS configuration
     imu_msg_.header.frame_id = "imu";
     node_handle_.advertise(imu_publisher_);
