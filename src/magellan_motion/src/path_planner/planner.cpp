@@ -155,7 +155,7 @@ Path PathPlanner::plan(Point goal) {
             if (alreadyOpen) {
                 if (!nodes[key]->closed) {
                     double oldCost = nodes[key]->gCost;
-                    goodAdd = (cc<oldCost);
+                    goodAdd = (cc < oldCost);
                 }
             } else {
                 goodAdd = true;
