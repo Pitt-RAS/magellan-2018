@@ -150,13 +150,22 @@ Path PathPlanner::plan(Point goal) {
             double cc = costs[dir] + next->gCost;
 
             bool alreadyOpen = (nodes.count(key) != 0);
+            bool goodAdd = false;
 
-            if (newx >= 0 && newx <= 10 && newy >= 0 && newy <= 10) {
-                // if inside map
-                if (isFree(newx,newy)) {
-                    // if free
-                    if ((alreadyOpen && cc < nodes[key]->gCost) || (!alreadyOpen && cc < INF_VALUE)) {
-                        // we have seen it but the gcost is less or we have never seen it before
+            if (alreadyOpen) {
+                if (!nodes[key]->closed) {
+                    double oldCost = nodes[key]->gCost;
+                    goodAdd = (cc<oldCost);
+                }
+            } else {
+                goodAdd = true;
+            }
+
+            if (goodAdd) {
+                if (newx >= 0 && newx <= 10 && newy >= 0 && newy <= 10) {
+                    // if inside map
+                    if (isFree(newx,newy)) {
+                        // if free
                         std::shared_ptr<Successor> newNode = std::make_shared<Successor>();
                         newNode->gCost = cc;
                         newNode->hCost = getHeuristic(newx, newy);

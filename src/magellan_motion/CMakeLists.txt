@@ -146,5 +146,3 @@ target_link_libraries(path_follower_node
 target_link_libraries(path_planner_node
     ${catkin_LIBRARIES}
 )
-
-
