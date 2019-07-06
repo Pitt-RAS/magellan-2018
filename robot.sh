@@ -49,6 +49,10 @@ case $1 in
         docker logs -f ${CONTAINER_NAME}
     ;;
 
+    add-key)
+        ssh-copy-id ras@${ROBOT_IP}
+    ;;
+
     deploy)
         $0 stop
         set -e
